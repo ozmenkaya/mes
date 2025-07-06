@@ -13,6 +13,11 @@ import Equipment from './pages/Equipment';
 import Reports from './pages/Reports';
 import FactorySettings from './pages/FactorySettings';
 import Departments from './pages/Departments';
+import Users from './pages/Users';
+import Shifts from './pages/Shifts';
+import Locations from './pages/Locations';
+import GeneralSettings from './pages/GeneralSettings';
+import SecuritySettings from './pages/SecuritySettings';
 
 function App() {
   return (
@@ -30,6 +35,11 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/factory-settings" element={<FactorySettings />} />
               <Route path="/factory-settings/departments" element={<Departments />} />
+              <Route path="/factory-settings/users" element={<Users />} />
+              <Route path="/factory-settings/shifts" element={<Shifts />} />
+              <Route path="/factory-settings/locations" element={<Locations />} />
+              <Route path="/factory-settings/general" element={<GeneralSettings />} />
+              <Route path="/factory-settings/security" element={<SecuritySettings />} />
             </Routes>
         </Layout>
       </Router>

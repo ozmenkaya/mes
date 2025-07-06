@@ -123,3 +123,56 @@ export interface Department {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SystemUser {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'admin' | 'manager' | 'operator' | 'quality_inspector' | 'maintenance';
+  department: string;
+  shift: string;
+  isActive: boolean;
+  lastLogin?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Shift {
+  id: string;
+  name: string;
+  code: string;
+  startTime: string;
+  endTime: string;
+  breakDuration: number; // in minutes
+  isActive: boolean;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Location {
+  id: string;
+  code: string;
+  name: string;
+  type: 'building' | 'floor' | 'area' | 'workstation';
+  parentLocation?: string;
+  isActive: boolean;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GeneralSettings {
+  companyName: string;
+  language: 'tr' | 'en';
+  timezone: string;
+  dateFormat: string;
+  currency: string;
+  workingDaysPerWeek: number;
+  workingHoursPerDay: number;
+  maintenanceAlertDays: number;
+  qualityCheckRequired: boolean;
+  autoCompleteWorkOrders: boolean;
+}
