@@ -11,7 +11,7 @@ import Users from './pages/Users';
 import Shifts from './pages/Shifts';
 import Locations from './pages/Locations';
 import GeneralSettingsPage from './pages/GeneralSettings';
-import SecuritySettingsPage from './pages/SecuritySettings';
+import SecuritySettings from './pages/SecuritySettings';
 
 // Dashboard component inline
 const Dashboard = () => (
@@ -516,7 +516,7 @@ const AppContent = () => {
           <Route path="/factory-settings/shifts" element={<Shifts />} />
           <Route path="/factory-settings/locations" element={<Locations />} />
           <Route path="/factory-settings/general" element={<GeneralSettingsPage />} />
-          <Route path="/factory-settings/security" element={<SecuritySettingsPage />} />
+          <Route path="/factory-settings/security" element={<SecuritySettings />} />
         </Routes>
       </Layout>
     </Router>
