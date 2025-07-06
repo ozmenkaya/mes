@@ -43,7 +43,84 @@ interface Department {
   description?: string;
 }
 
+interface SystemUser {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  department: string;
+  isActive: boolean;
+}
+
 const Departments: React.FC = () => {
+  // Kullanıcılar listesi - gerçek uygulamada API'dan gelecek
+  const [users] = useState<SystemUser[]>([
+    {
+      id: '1',
+      username: 'admin',
+      firstName: 'Sistem',
+      lastName: 'Yöneticisi',
+      role: 'admin',
+      department: 'Bilgi İşlem',
+      isActive: true
+    },
+    {
+      id: '2',
+      username: 'ayilmaz',
+      firstName: 'Ahmet',
+      lastName: 'Yılmaz',
+      role: 'manager',
+      department: 'Ana Üretim',
+      isActive: true
+    },
+    {
+      id: '3',
+      username: 'ademir',
+      firstName: 'Ayşe',
+      lastName: 'Demir',
+      role: 'quality_inspector',
+      department: 'Kalite Kontrol',
+      isActive: true
+    },
+    {
+      id: '4',
+      username: 'mkaya',
+      firstName: 'Mehmet',
+      lastName: 'Kaya',
+      role: 'maintenance',
+      department: 'Bakım Onarım',
+      isActive: true
+    },
+    {
+      id: '5',
+      username: 'fcanli',
+      firstName: 'Fatma',
+      lastName: 'Canlı',
+      role: 'operator',
+      department: 'Ana Üretim',
+      isActive: false
+    },
+    {
+      id: '6',
+      username: 'aozkan',
+      firstName: 'Ali',
+      lastName: 'Özkan',
+      role: 'manager',
+      department: 'Bilgi İşlem',
+      isActive: true
+    },
+    {
+      id: '7',
+      username: 'fsen',
+      firstName: 'Fatma',
+      lastName: 'Şen',
+      role: 'manager',
+      department: 'Lojistik',
+      isActive: true
+    }
+  ]);
+
   const [departments, setDepartments] = useState<Department[]>([
     {
       id: '1',
@@ -271,13 +348,23 @@ const Departments: React.FC = () => {
               fullWidth
               placeholder="Ana Üretim"
             />
-            <TextField
-              label="Departman Sorumlusu"
-              value={formData.manager || ''}
-              onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-              fullWidth
-              placeholder="Ahmet Yılmaz"
-            />
+            <FormControl fullWidth>
+              <InputLabel>Departman Sorumlusu</InputLabel>
+              <Select
+                value={formData.manager || ''}
+                label="Departman Sorumlusu"
+                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+              >
+                <MenuItem value="">- Sorumlu Seçin -</MenuItem>
+                {users
+                  .filter(user => user.isActive && (user.role === 'manager' || user.role === 'admin'))
+                  .map(user => (
+                    <MenuItem key={user.id} value={`${user.firstName} ${user.lastName}`}>
+                      {user.firstName} {user.lastName} ({user.role === 'admin' ? 'Yönetici' : 'Müdür'})
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Lokasyon"
               value={formData.location || ''}
