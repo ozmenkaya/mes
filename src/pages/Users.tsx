@@ -35,9 +35,130 @@ import {
   Block as BlockIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import type { SystemUser } from '../types';
+import type { SystemUser, Department, Shift } from '../types';
 
 const Users: React.FC = () => {
+  // Departmanlar listesi - gerçek uygulamada API'dan gelecek
+  const [departments] = useState<Department[]>([
+    {
+      id: '1',
+      code: 'PRD-001',
+      name: 'Ana Üretim',
+      manager: 'Ahmet Yılmaz',
+      location: 'Fabrika A - Kat 1',
+      employeeCount: 25,
+      shift: 'Gündüz',
+      status: 'active',
+      description: 'Ana üretim hattı departmanı',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '2',
+      code: 'QC-001',
+      name: 'Kalite Kontrol',
+      manager: 'Ayşe Demir',
+      location: 'Fabrika A - Kat 2',
+      employeeCount: 8,
+      shift: 'Gündüz',
+      status: 'active',
+      description: 'Kalite kontrol ve test departmanı',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '3',
+      code: 'MNT-001',
+      name: 'Bakım Onarım',
+      manager: 'Mehmet Kaya',
+      location: 'Fabrika A - Zemin',
+      employeeCount: 12,
+      shift: '24 Saat',
+      status: 'active',
+      description: 'Ekipman bakım ve onarım departmanı',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '4',
+      code: 'IT-001',
+      name: 'Bilgi İşlem',
+      manager: 'Ali Özkan',
+      location: 'Fabrika A - Kat 3',
+      employeeCount: 5,
+      shift: 'Gündüz',
+      status: 'active',
+      description: 'Bilgi işlem departmanı',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '5',
+      code: 'LOG-001',
+      name: 'Lojistik',
+      manager: 'Fatma Şen',
+      location: 'Fabrika A - Zemin',
+      employeeCount: 15,
+      shift: 'Gündüz',
+      status: 'active',
+      description: 'Lojistik ve depo departmanı',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    }
+  ]);
+
+  // Vardiyalar listesi - gerçek uygulamada API'dan gelecek
+  const [shifts] = useState<Shift[]>([
+    {
+      id: '1',
+      name: 'Gündüz Vardiyası',
+      code: 'GUN',
+      startTime: '08:00',
+      endTime: '16:00',
+      breakDuration: 60,
+      isActive: true,
+      description: 'Normal gündüz çalışma vardiyası',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '2',
+      name: 'Akşam Vardiyası',
+      code: 'AKS',
+      startTime: '16:00',
+      endTime: '24:00',
+      breakDuration: 45,
+      isActive: true,
+      description: 'Akşam çalışma vardiyası',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '3',
+      name: 'Gece Vardiyası',
+      code: 'GCE',
+      startTime: '00:00',
+      endTime: '08:00',
+      breakDuration: 45,
+      isActive: true,
+      description: 'Gece çalışma vardiyası',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    },
+    {
+      id: '4',
+      name: '24 Saat Vardiya',
+      code: '24H',
+      startTime: '00:00',
+      endTime: '23:59',
+      breakDuration: 120,
+      isActive: true,
+      description: '24 saat sürekli vardiya',
+      createdAt: '2024-01-01 08:00',
+      updatedAt: '2024-01-01 08:00'
+    }
+  ]);
+
   const [users, setUsers] = useState<SystemUser[]>([
     {
       id: '1',
@@ -47,7 +168,7 @@ const Users: React.FC = () => {
       lastName: 'Yöneticisi',
       role: 'admin',
       department: 'Bilgi İşlem',
-      shift: 'Gündüz',
+      shift: 'Gündüz Vardiyası',
       isActive: true,
       lastLogin: '2024-01-15 14:30',
       createdAt: '2024-01-01 08:00',
@@ -61,7 +182,7 @@ const Users: React.FC = () => {
       lastName: 'Yılmaz',
       role: 'manager',
       department: 'Ana Üretim',
-      shift: 'Gündüz',
+      shift: 'Gündüz Vardiyası',
       isActive: true,
       lastLogin: '2024-01-15 16:45',
       createdAt: '2024-01-02 09:00',
@@ -75,7 +196,7 @@ const Users: React.FC = () => {
       lastName: 'Demir',
       role: 'quality_inspector',
       department: 'Kalite Kontrol',
-      shift: 'Gündüz',
+      shift: 'Gündüz Vardiyası',
       isActive: true,
       lastLogin: '2024-01-15 15:20',
       createdAt: '2024-01-03 10:00',
@@ -89,7 +210,7 @@ const Users: React.FC = () => {
       lastName: 'Kaya',
       role: 'maintenance',
       department: 'Bakım Onarım',
-      shift: '24 Saat',
+      shift: '24 Saat Vardiya',
       isActive: true,
       lastLogin: '2024-01-15 13:10',
       createdAt: '2024-01-04 11:00',
@@ -103,7 +224,7 @@ const Users: React.FC = () => {
       lastName: 'Canlı',
       role: 'operator',
       department: 'Ana Üretim',
-      shift: 'Akşam',
+      shift: 'Akşam Vardiyası',
       isActive: false,
       lastLogin: '2024-01-10 18:30',
       createdAt: '2024-01-05 12:00',
@@ -120,7 +241,7 @@ const Users: React.FC = () => {
     lastName: '',
     role: 'operator',
     department: '',
-    shift: 'Gündüz',
+    shift: '',
     isActive: true
   });
 
@@ -137,7 +258,7 @@ const Users: React.FC = () => {
         lastName: '',
         role: 'operator',
         department: '',
-        shift: 'Gündüz',
+        shift: '',
         isActive: true
       });
     }
@@ -393,12 +514,23 @@ const Users: React.FC = () => {
                   <MenuItem value="admin">Sistem Yöneticisi</MenuItem>
                 </Select>
               </FormControl>
-              <TextField
-                fullWidth
-                label="Departman"
-                value={formData.department || ''}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Departman</InputLabel>
+                <Select
+                  value={formData.department || ''}
+                  label="Departman"
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                >
+                  <MenuItem value="">- Departman Seçin -</MenuItem>
+                  {departments
+                    .filter(dept => dept.status === 'active')
+                    .map(department => (
+                      <MenuItem key={department.id} value={department.name}>
+                        {department.name} ({department.code})
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
             </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl fullWidth>
@@ -408,10 +540,14 @@ const Users: React.FC = () => {
                   label="Vardiya"
                   onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
                 >
-                  <MenuItem value="Gündüz">Gündüz (08:00-16:00)</MenuItem>
-                  <MenuItem value="Akşam">Akşam (16:00-24:00)</MenuItem>
-                  <MenuItem value="Gece">Gece (24:00-08:00)</MenuItem>
-                  <MenuItem value="24 Saat">24 Saat</MenuItem>
+                  <MenuItem value="">- Vardiya Seçin -</MenuItem>
+                  {shifts
+                    .filter(shift => shift.isActive)
+                    .map(shift => (
+                      <MenuItem key={shift.id} value={shift.name}>
+                        {shift.name} ({shift.startTime}-{shift.endTime})
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
