@@ -76,29 +76,56 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const drawer = (
     <div>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-          ÜYS Sistemi
+      <Toolbar sx={{ 
+        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+        color: 'white' 
+      }}>
+        <Typography 
+          variant="h6" 
+          noWrap 
+          component="div" 
+          sx={{ 
+            color: 'white', 
+            fontWeight: 700,
+            fontSize: '1.1rem'
+          }}
+        >
+          🏭 MES Sistemi
         </Typography>
       </Toolbar>
       <Divider />
-      <List>
+      <List sx={{ pt: 1 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.text} disablePadding sx={{ mb: 0.5, px: 1 }}>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => navigate(item.path)}
               sx={{
+                borderRadius: 2,
+                minHeight: 48,
                 '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                   color: 'white',
+                  boxShadow: '0 2px 8px 0 rgba(37, 99, 235, 0.3)',
                   '& .MuiListItemIcon-root': {
                     color: 'white',
                   },
                 },
                 '&:hover': {
-                  backgroundColor: 'primary.light',
-                  opacity: 0.8,
+                  background: location.pathname === item.path 
+                    ? 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)'
+                    : 'rgba(37, 99, 235, 0.08)',
+                  '& .MuiListItemIcon-root': {
+                    color: location.pathname === item.path ? 'white' : 'primary.main',
+                  },
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: location.pathname === item.path ? 'white' : 'text.secondary',
+                },
+                '& .MuiListItemText-primary': {
+                  fontWeight: location.pathname === item.path ? 600 : 500,
+                  fontSize: '0.95rem',
                 },
               }}
             >
@@ -119,39 +146,75 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          color: 'text.primary',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          borderBottom: '1px solid #e2e8f0',
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ minHeight: '64px !important' }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ 
+              mr: 2, 
+              display: { sm: 'none' },
+              color: 'text.primary'
+            }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography 
+            variant="h6" 
+            noWrap 
+            component="div" 
+            sx={{ 
+              flexGrow: 1,
+              fontWeight: 600,
+              color: 'text.primary'
+            }}
+          >
             Üretim Yürütme Sistemi
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                {user?.firstName} {user?.lastName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {user?.role === 'admin' ? 'Yönetici' : 
+                 user?.role === 'manager' ? 'Müdür' : 'Operatör'}
+              </Typography>
+            </Box>
             <IconButton
               size="large"
               aria-label="account of current user"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleMenu}
-              color="inherit"
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                }
+              }}
             >
-              <Avatar sx={{ width: 32, height: 32 }}>
-                <AccountCircle />
+              <Avatar sx={{ 
+                width: 40, 
+                height: 40,
+                background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                color: 'white',
+                fontWeight: 600
+              }}>
+                {user?.firstName?.[0]}{user?.lastName?.[0]}
               </Avatar>
             </IconButton>
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: 'top',
+                vertical: 'bottom',
                 horizontal: 'right',
               }}
               keepMounted
@@ -161,23 +224,65 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               }}
               open={Boolean(anchorEl)}
               onClose={handleClose}
+              sx={{
+                '& .MuiPaper-root': {
+                  mt: 1,
+                  borderRadius: 2,
+                  minWidth: 200,
+                  boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.1)',
+                },
+              }}
             >
-              <MenuItem onClick={handleClose}>
+              <Box sx={{ p: 2, backgroundColor: 'background.paper' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {user ? `${user.firstName} ${user.lastName}` : 'Kullanıcı'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {user?.email}
+                </Typography>
+              </Box>
+              <Divider />
+              <MenuItem 
+                onClick={handleClose}
+                sx={{
+                  py: 1.5,
+                  '&:hover': {
+                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                  }
+                }}
+              >
                 <ListItemIcon>
-                  <AccountCircle fontSize="small" />
+                  <AccountCircle fontSize="small" sx={{ color: 'primary.main' }} />
                 </ListItemIcon>
-                {user ? `${user.firstName} ${user.lastName}` : 'Profil'}
+                Profil
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem 
+                onClick={handleClose}
+                sx={{
+                  py: 1.5,
+                  '&:hover': {
+                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                  }
+                }}
+              >
                 <ListItemIcon>
-                  <Settings fontSize="small" />
+                  <Settings fontSize="small" sx={{ color: 'primary.main' }} />
                 </ListItemIcon>
                 Ayarlar
               </MenuItem>
               <Divider />
-              <MenuItem onClick={handleLogout}>
+              <MenuItem 
+                onClick={handleLogout}
+                sx={{
+                  py: 1.5,
+                  color: 'error.main',
+                  '&:hover': {
+                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  }
+                }}
+              >
                 <ListItemIcon>
-                  <Logout fontSize="small" />
+                  <Logout fontSize="small" sx={{ color: 'error.main' }} />
                 </ListItemIcon>
                 Çıkış Yap
               </MenuItem>
@@ -208,7 +313,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              borderRight: '1px solid #e2e8f0',
+              boxShadow: '4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+            },
           }}
           open
         >
@@ -219,14 +329,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           minHeight: '100vh',
-          backgroundColor: 'background.default',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         }}
       >
         <Toolbar />
-        {children}
+        <Box sx={{ p: 0 }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   );

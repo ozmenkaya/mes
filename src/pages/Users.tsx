@@ -449,73 +449,164 @@ const Users: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
+      {/* Modern Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700, 
+            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1 
+          }}
+        >
           Kullanıcı Yönetimi
         </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, mb: 3 }}>
+          Sistem kullanıcılarını yönetin ve izleyin
+        </Typography>
+        
         <Button
           variant="contained"
+          size="large"
           startIcon={<AddIcon />}
           onClick={() => handleOpen()}
+          sx={{ 
+            background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+            boxShadow: '0 4px 14px 0 rgb(37 99 235 / 0.35)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+              boxShadow: '0 6px 20px 0 rgb(37 99 235 / 0.4)',
+            }
+          }}
         >
-          Yeni Kullanıcı
+          Yeni Kullanıcı Ekle
         </Button>
       </Box>
 
       {/* İstatistik Kartları */}
-      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
-        <Box sx={{ flex: 1, minWidth: 250 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <PeopleIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" color="primary">
-                {users.length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Toplam Kullanıcı
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 250 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <CheckCircleIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
-              <Typography variant="h4" color="success.main">
-                {activeUsers}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Aktif Kullanıcı
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 250 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <BlockIcon sx={{ fontSize: 40, color: 'error.main', mb: 1 }} />
-              <Typography variant="h4" color="error.main">
-                {inactiveUsers}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Pasif Kullanıcı
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 250 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <PersonAddIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
-              <Typography variant="h4" color="warning.main">
-                {adminUsers}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Yönetici
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
+      <Box 
+        sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(4, 1fr)'
+          },
+          gap: 3,
+          mb: 4
+        }}
+      >
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+            <PeopleIcon sx={{ fontSize: 40, opacity: 0.9, mb: 1 }} />
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {users.length}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Toplam Kullanıcı
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+            <CheckCircleIcon sx={{ fontSize: 40, opacity: 0.9, mb: 1 }} />
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {activeUsers}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Aktif Kullanıcı
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+            <BlockIcon sx={{ fontSize: 40, opacity: 0.9, mb: 1 }} />
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {inactiveUsers}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Pasif Kullanıcı
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+            <PersonAddIcon sx={{ fontSize: 40, opacity: 0.9, mb: 1 }} />
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {adminUsers}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Yönetici
+            </Typography>
+          </CardContent>
+        </Card>
       </Box>
 
       {/* Kullanıcı Tablosu */}
