@@ -11,23 +11,26 @@ import Quality from './pages/Quality';
 import Inventory from './pages/Inventory';
 import Equipment from './pages/Equipment';
 import Reports from './pages/Reports';
+import FactorySettings from './pages/FactorySettings';
+import Departments from './pages/Departments';
 
 function App() {
   return (
     <ThemeProvider theme={mesTheme}>
       <CssBaseline />
       <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/work-orders" element={<WorkOrders />} />
-            <Route path="/production" element={<Production />} />
-            <Route path="/quality" element={<Quality />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/equipment" element={<Equipment />} />
-            <Route path="/reports" element={<Reports />} />
-          </Routes>
+        <Layout>            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/work-orders" element={<WorkOrders />} />
+              <Route path="/production" element={<Production />} />
+              <Route path="/quality" element={<Quality />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/equipment" element={<Equipment />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/factory-settings" element={<FactorySettings />} />
+              <Route path="/factory-settings/departments" element={<Departments />} />
+            </Routes>
         </Layout>
       </Router>
     </ThemeProvider>

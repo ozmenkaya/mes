@@ -64,6 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Stok Yönetimi', icon: <InventoryIcon />, path: '/inventory' },
     { text: 'Ekipman Yönetimi', icon: <EquipmentIcon />, path: '/equipment' },
     { text: 'Raporlar', icon: <ReportsIcon />, path: '/reports' },
+    { text: 'Fabrika Ayarları', icon: <Settings />, path: '/factory-settings' },
   ];
 
   const drawer = (

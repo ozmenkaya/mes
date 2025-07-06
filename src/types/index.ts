@@ -109,3 +109,17 @@ export interface DashboardMetrics {
   equipmentUtilization: number;
   inventoryTurnover: number;
 }
+
+export interface Department {
+  id: string;
+  code: string;
+  name: string;
+  manager: string;
+  location: string;
+  employeeCount: number;
+  shift: string;
+  status: 'active' | 'inactive';
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
