@@ -31,7 +31,8 @@ import {
   Business as DepartmentIcon,
 } from '@mui/icons-material';
 
-interface Department {
+// Departman yönetimi için basitleştirilmiş arayüzler
+interface DepartmentData {
   id: string;
   code: string;
   name: string;
@@ -43,7 +44,7 @@ interface Department {
   description?: string;
 }
 
-interface SystemUser {
+interface UserData {
   id: string;
   username: string;
   firstName: string;
@@ -55,7 +56,7 @@ interface SystemUser {
 
 const Departments: React.FC = () => {
   // Kullanıcılar listesi - gerçek uygulamada API'dan gelecek
-  const [users] = useState<SystemUser[]>([
+  const [users] = useState<UserData[]>([
     {
       id: '1',
       username: 'admin',
@@ -121,7 +122,7 @@ const Departments: React.FC = () => {
     }
   ]);
 
-  const [departments, setDepartments] = useState<Department[]>([
+  const [departments, setDepartments] = useState<DepartmentData[]>([
     {
       id: '1',
       code: 'PRD-001',
@@ -158,8 +159,8 @@ const Departments: React.FC = () => {
   ]);
 
   const [open, setOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
-  const [formData, setFormData] = useState<Partial<Department>>({
+  const [editingDepartment, setEditingDepartment] = useState<DepartmentData | null>(null);
+  const [formData, setFormData] = useState<Partial<DepartmentData>>({
     code: '',
     name: '',
     manager: '',
@@ -170,7 +171,7 @@ const Departments: React.FC = () => {
     description: ''
   });
 
-  const handleOpen = (department?: Department) => {
+  const handleOpen = (department?: DepartmentData) => {
     if (department) {
       setEditingDepartment(department);
       setFormData(department);
@@ -200,14 +201,14 @@ const Departments: React.FC = () => {
     if (editingDepartment) {
       // Güncelle
       setDepartments(departments.map(dept => 
-        dept.id === editingDepartment.id ? { ...formData, id: editingDepartment.id } as Department : dept
+        dept.id === editingDepartment.id ? { ...formData, id: editingDepartment.id } as DepartmentData : dept
       ));
     } else {
       // Yeni ekle
-      const newDepartment: Department = {
+      const newDepartment: DepartmentData = {
         ...formData,
         id: Date.now().toString(),
-      } as Department;
+      } as DepartmentData;
       setDepartments([...departments, newDepartment]);
     }
     handleClose();

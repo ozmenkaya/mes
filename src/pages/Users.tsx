@@ -25,6 +25,11 @@ import {
   MenuItem,
   Switch,
   FormControlLabel,
+  Checkbox,
+  FormGroup,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,8 +39,9 @@ import {
   PersonAdd as PersonAddIcon,
   Block as BlockIcon,
   CheckCircle as CheckCircleIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
-import type { SystemUser, Department, Shift } from '../types';
+import type { SystemUser, Department, Shift, Permission } from '../types';
 
 const Users: React.FC = () => {
   // Departmanlar listesi - gerçek uygulamada API'dan gelecek
@@ -169,8 +175,12 @@ const Users: React.FC = () => {
       role: 'admin',
       department: 'Bilgi İşlem',
       shift: 'Gündüz Vardiyası',
+      permissions: [],
       isActive: true,
+      mustChangePassword: false,
+      failedLoginAttempts: 0,
       lastLogin: '2024-01-15 14:30',
+      lastPasswordChange: '2024-01-01 08:00',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-15 14:30'
     },
@@ -183,8 +193,12 @@ const Users: React.FC = () => {
       role: 'manager',
       department: 'Ana Üretim',
       shift: 'Gündüz Vardiyası',
+      permissions: [],
       isActive: true,
+      mustChangePassword: false,
+      failedLoginAttempts: 0,
       lastLogin: '2024-01-15 16:45',
+      lastPasswordChange: '2024-01-02 09:00',
       createdAt: '2024-01-02 09:00',
       updatedAt: '2024-01-15 16:45'
     },
@@ -197,7 +211,10 @@ const Users: React.FC = () => {
       role: 'quality_inspector',
       department: 'Kalite Kontrol',
       shift: 'Gündüz Vardiyası',
+      permissions: [],
       isActive: true,
+      mustChangePassword: false,
+      failedLoginAttempts: 0,
       lastLogin: '2024-01-15 15:20',
       createdAt: '2024-01-03 10:00',
       updatedAt: '2024-01-15 15:20'
@@ -211,8 +228,12 @@ const Users: React.FC = () => {
       role: 'maintenance',
       department: 'Bakım Onarım',
       shift: '24 Saat Vardiya',
+      permissions: [],
       isActive: true,
+      mustChangePassword: false,
+      failedLoginAttempts: 0,
       lastLogin: '2024-01-15 13:10',
+      lastPasswordChange: '2024-01-04 11:00',
       createdAt: '2024-01-04 11:00',
       updatedAt: '2024-01-15 13:10'
     },
@@ -225,11 +246,57 @@ const Users: React.FC = () => {
       role: 'operator',
       department: 'Ana Üretim',
       shift: 'Akşam Vardiyası',
+      permissions: [],
       isActive: false,
+      mustChangePassword: true,
+      failedLoginAttempts: 2,
       lastLogin: '2024-01-10 18:30',
+      lastPasswordChange: '2024-01-05 12:00',
       createdAt: '2024-01-05 12:00',
       updatedAt: '2024-01-10 18:30'
     }
+  ]);
+
+  // Yetki listesi - gerçek uygulamada API'dan gelecek
+  const [permissions] = useState<Permission[]>([
+    // Dashboard Yetkileri
+    { id: 'dashboard_read', name: 'Kontrol Paneli Görüntüleme', description: 'Kontrol panelini görüntüleyebilir', module: 'dashboard', action: 'read' },
+    { id: 'dashboard_export', name: 'Kontrol Paneli Dışa Aktarma', description: 'Kontrol paneli verilerini dışa aktarabilir', module: 'dashboard', action: 'export' },
+    
+    // İş Emirleri Yetkileri
+    { id: 'work_orders_read', name: 'İş Emirleri Görüntüleme', description: 'İş emirlerini görüntüleyebilir', module: 'work_orders', action: 'read' },
+    { id: 'work_orders_create', name: 'İş Emri Oluşturma', description: 'Yeni iş emri oluşturabilir', module: 'work_orders', action: 'create' },
+    { id: 'work_orders_update', name: 'İş Emri Güncelleme', description: 'İş emirlerini güncelleyebilir', module: 'work_orders', action: 'update' },
+    { id: 'work_orders_delete', name: 'İş Emri Silme', description: 'İş emirlerini silebilir', module: 'work_orders', action: 'delete' },
+    { id: 'work_orders_approve', name: 'İş Emri Onaylama', description: 'İş emirlerini onaylayabilir', module: 'work_orders', action: 'approve' },
+    
+    // Üretim Planlama Yetkileri
+    { id: 'production_read', name: 'Üretim Planlama Görüntüleme', description: 'Üretim planlarını görüntüleyebilir', module: 'production', action: 'read' },
+    { id: 'production_create', name: 'Üretim Planı Oluşturma', description: 'Yeni üretim planı oluşturabilir', module: 'production', action: 'create' },
+    { id: 'production_update', name: 'Üretim Planı Güncelleme', description: 'Üretim planlarını güncelleyebilir', module: 'production', action: 'update' },
+    
+    // Kalite Yönetimi Yetkileri
+    { id: 'quality_read', name: 'Kalite Yönetimi Görüntüleme', description: 'Kalite verilerini görüntüleyebilir', module: 'quality', action: 'read' },
+    { id: 'quality_create', name: 'Kalite Kontrolü Oluşturma', description: 'Yeni kalite kontrolü oluşturabilir', module: 'quality', action: 'create' },
+    { id: 'quality_approve', name: 'Kalite Onaylama', description: 'Kalite kontrollerini onaylayabilir', module: 'quality', action: 'approve' },
+    
+    // Stok Yönetimi Yetkileri
+    { id: 'inventory_read', name: 'Stok Yönetimi Görüntüleme', description: 'Stok verilerini görüntüleyebilir', module: 'inventory', action: 'read' },
+    { id: 'inventory_create', name: 'Stok Hareketi Oluşturma', description: 'Yeni stok hareketi oluşturabilir', module: 'inventory', action: 'create' },
+    { id: 'inventory_update', name: 'Stok Güncelleme', description: 'Stok verilerini güncelleyebilir', module: 'inventory', action: 'update' },
+    
+    // Ekipman Yönetimi Yetkileri
+    { id: 'equipment_read', name: 'Ekipman Yönetimi Görüntüleme', description: 'Ekipman verilerini görüntüleyebilir', module: 'equipment', action: 'read' },
+    { id: 'equipment_create', name: 'Ekipman Ekleme', description: 'Yeni ekipman ekleyebilir', module: 'equipment', action: 'create' },
+    { id: 'equipment_update', name: 'Ekipman Güncelleme', description: 'Ekipman verilerini güncelleyebilir', module: 'equipment', action: 'update' },
+    
+    // Raporlar Yetkileri
+    { id: 'reports_read', name: 'Raporlar Görüntüleme', description: 'Raporları görüntüleyebilir', module: 'reports', action: 'read' },
+    { id: 'reports_export', name: 'Rapor Dışa Aktarma', description: 'Raporları dışa aktarabilir', module: 'reports', action: 'export' },
+    
+    // Fabrika Ayarları Yetkileri
+    { id: 'factory_settings_read', name: 'Fabrika Ayarları Görüntüleme', description: 'Fabrika ayarlarını görüntüleyebilir', module: 'factory_settings', action: 'read' },
+    { id: 'factory_settings_update', name: 'Fabrika Ayarları Güncelleme', description: 'Fabrika ayarlarını güncelleyebilir', module: 'factory_settings', action: 'update' },
   ]);
 
   const [open, setOpen] = useState(false);
@@ -237,29 +304,38 @@ const Users: React.FC = () => {
   const [formData, setFormData] = useState<Partial<SystemUser>>({
     username: '',
     email: '',
+    password: '',
     firstName: '',
     lastName: '',
     role: 'operator',
     department: '',
     shift: '',
-    isActive: true
+    permissions: [],
+    isActive: true,
+    mustChangePassword: true,
+    failedLoginAttempts: 0
   });
 
   const handleOpen = (user?: SystemUser) => {
     if (user) {
       setEditingUser(user);
-      setFormData(user);
+      // Düzenleme modunda şifre alanını boş bırak
+      setFormData({ ...user, password: '' });
     } else {
       setEditingUser(null);
       setFormData({
         username: '',
         email: '',
+        password: '',
         firstName: '',
         lastName: '',
         role: 'operator',
         department: '',
         shift: '',
-        isActive: true
+        permissions: [],
+        isActive: true,
+        mustChangePassword: true,
+        failedLoginAttempts: 0
       });
     }
     setOpen(true);
@@ -271,16 +347,43 @@ const Users: React.FC = () => {
   };
 
   const handleSave = () => {
+    // Şifre validasyonu
+    if (!editingUser && (!formData.password || formData.password.length < 6)) {
+      alert('Yeni kullanıcı için en az 6 karakter şifre girilmelidir.');
+      return;
+    }
+
+    if (editingUser && formData.password && formData.password.length < 6) {
+      alert('Şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+
+    // E-posta validasyonu
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email || '')) {
+      alert('Geçerli bir e-posta adresi giriniz.');
+      return;
+    }
+
     if (editingUser) {
+      const updateData = { ...formData };
+      // Şifre boşsa güncelleme
+      if (!formData.password) {
+        delete updateData.password;
+      } else {
+        updateData.lastPasswordChange = new Date().toISOString().slice(0, 16);
+      }
+      
       setUsers(users.map(user => 
         user.id === editingUser.id 
-          ? { ...user, ...formData, updatedAt: new Date().toISOString().slice(0, 16) }
+          ? { ...user, ...updateData, updatedAt: new Date().toISOString().slice(0, 16) }
           : user
       ));
     } else {
       const newUser: SystemUser = {
         ...formData as SystemUser,
         id: Date.now().toString(),
+        lastPasswordChange: new Date().toISOString().slice(0, 16),
         createdAt: new Date().toISOString().slice(0, 16),
         updatedAt: new Date().toISOString().slice(0, 16)
       };
@@ -328,6 +431,21 @@ const Users: React.FC = () => {
   const activeUsers = users.filter(user => user.isActive).length;
   const inactiveUsers = users.filter(user => !user.isActive).length;
   const adminUsers = users.filter(user => user.role === 'admin').length;
+
+  // Modül isimlerini Türkçe'ye çeviren fonksiyon
+  const getModuleName = (module: string): string => {
+    const moduleNames: Record<string, string> = {
+      'dashboard': 'Kontrol Paneli',
+      'work_orders': 'İş Emirleri',
+      'production': 'Üretim Planlama',
+      'quality': 'Kalite Yönetimi',
+      'inventory': 'Stok Yönetimi',
+      'equipment': 'Ekipman Yönetimi',
+      'reports': 'Raporlar',
+      'factory_settings': 'Fabrika Ayarları'
+    };
+    return moduleNames[module] || module;
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -414,6 +532,7 @@ const Users: React.FC = () => {
                   <TableCell>Departman</TableCell>
                   <TableCell>Vardiya</TableCell>
                   <TableCell>Durum</TableCell>
+                  <TableCell>Güvenlik</TableCell>
                   <TableCell>Son Giriş</TableCell>
                   <TableCell>İşlemler</TableCell>
                 </TableRow>
@@ -441,6 +560,31 @@ const Users: React.FC = () => {
                         onClick={() => toggleUserStatus(user.id)}
                         sx={{ cursor: 'pointer' }}
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        {user.mustChangePassword && (
+                          <Chip 
+                            label="Şifre Değiştirmeli" 
+                            color="warning" 
+                            size="small" 
+                          />
+                        )}
+                        {user.failedLoginAttempts > 0 && (
+                          <Chip 
+                            label={`${user.failedLoginAttempts} Başarısız Giriş`} 
+                            color="error" 
+                            size="small" 
+                          />
+                        )}
+                        {user.accountLockedUntil && (
+                          <Chip 
+                            label="Hesap Kilitli" 
+                            color="error" 
+                            size="small" 
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>{user.lastLogin || '-'}</TableCell>
                     <TableCell>
@@ -483,6 +627,25 @@ const Users: React.FC = () => {
                 type="email"
                 value={formData.email || ''}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label={editingUser ? "Yeni Şifre (boş bırakılırsa değişmez)" : "Şifre"}
+                type="password"
+                value={formData.password || ''}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                helperText={editingUser ? "Şifreyi değiştirmek için yeni şifre girin" : "En az 6 karakter olmalıdır"}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.mustChangePassword || false}
+                    onChange={(e) => setFormData({ ...formData, mustChangePassword: e.target.checked })}
+                  />
+                }
+                label="İlk girişte şifre değiştirme zorunlu"
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -561,6 +724,75 @@ const Users: React.FC = () => {
                   label="Aktif"
                 />
               </Box>
+            </Box>
+
+            {/* Yetkiler Ayarları */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Kullanıcı Yetkileri
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Kullanıcının erişebileceği modüller ve işlemleri seçin
+              </Typography>
+              
+              {/* Modüllere göre gruplanmış yetkiler */}
+              {Object.entries(
+                permissions.reduce((acc, permission) => {
+                  const moduleName = getModuleName(permission.module);
+                  if (!acc[moduleName]) acc[moduleName] = [];
+                  acc[moduleName].push(permission);
+                  return acc;
+                }, {} as Record<string, Permission[]>)
+              ).map(([moduleName, modulePermissions]) => (
+                <Accordion key={moduleName}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography>{moduleName}</Typography>
+                    <Box sx={{ ml: 'auto', mr: 1 }}>
+                      <Chip 
+                        size="small" 
+                        label={`${modulePermissions.filter(p => formData.permissions?.includes(p.id)).length}/${modulePermissions.length}`}
+                        color={modulePermissions.filter(p => formData.permissions?.includes(p.id)).length > 0 ? 'primary' : 'default'}
+                      />
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <FormGroup>
+                      {modulePermissions.map(permission => (
+                        <FormControlLabel
+                          key={permission.id}
+                          control={
+                            <Checkbox
+                              checked={formData.permissions?.includes(permission.id) || false}
+                              onChange={(e) => {
+                                const currentPermissions = formData.permissions || [];
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    permissions: [...currentPermissions, permission.id]
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    permissions: currentPermissions.filter(p => p !== permission.id)
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label={
+                            <Box>
+                              <Typography variant="body2">{permission.name}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {permission.description}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                      ))}
+                    </FormGroup>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
             </Box>
           </Box>
         </DialogContent>

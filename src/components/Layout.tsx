@@ -31,6 +31,7 @@ import {
   Logout,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const drawerWidth = 240;
 
@@ -43,6 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -53,6 +55,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
     setAnchorEl(null);
   };
 
@@ -159,7 +166,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <ListItemIcon>
                   <AccountCircle fontSize="small" />
                 </ListItemIcon>
-                Profil
+                {user ? `${user.firstName} ${user.lastName}` : 'Profil'}
               </MenuItem>
               <MenuItem onClick={handleClose}>
                 <ListItemIcon>
@@ -168,7 +175,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Ayarlar
               </MenuItem>
               <Divider />
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <Logout fontSize="small" />
                 </ListItemIcon>

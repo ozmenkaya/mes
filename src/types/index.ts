@@ -124,17 +124,42 @@ export interface Department {
   updatedAt: string;
 }
 
+// Kullanıcı yetkileri arayüzü
+export interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  module: 'dashboard' | 'work_orders' | 'production' | 'quality' | 'inventory' | 'equipment' | 'reports' | 'factory_settings';
+  action: 'read' | 'create' | 'update' | 'delete' | 'approve' | 'export';
+}
+
+// Kullanıcı rolü ve yetkileri
+export interface UserRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[]; // Permission ID'leri
+  isSystemRole: boolean; // Sistem rolleri silinemez
+}
+
 export interface SystemUser {
   id: string;
   username: string;
   email: string;
+  password?: string; // Şifre ekleme/güncelleme için
   firstName: string;
   lastName: string;
   role: 'admin' | 'manager' | 'operator' | 'quality_inspector' | 'maintenance';
+  customRole?: string; // Özel rol ID'si
   department: string;
   shift: string;
+  permissions: string[]; // Kullanıcıya özel ek yetkiler
   isActive: boolean;
+  mustChangePassword: boolean; // İlk girişte şifre değiştirme zorunluluğu
   lastLogin?: string;
+  lastPasswordChange?: string;
+  failedLoginAttempts: number;
+  accountLockedUntil?: string;
   createdAt: string;
   updatedAt: string;
 }
