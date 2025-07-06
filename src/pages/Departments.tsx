@@ -227,48 +227,128 @@ const Departments: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+    <Box sx={{ p: 3 }}>
+      {/* Modern Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700, 
+            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1 
+          }}
+        >
           Departman Yönetimi
         </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, mb: 3 }}>
+          Fabrika departmanlarını yönetin ve organize edin
+        </Typography>
+        
         <Button
           variant="contained"
+          size="large"
           startIcon={<AddIcon />}
           onClick={() => handleOpen()}
-          sx={{ borderRadius: 2 }}
+          sx={{ 
+            background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+            boxShadow: '0 4px 14px 0 rgb(37 99 235 / 0.35)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+              boxShadow: '0 6px 20px 0 rgb(37 99 235 / 0.4)',
+            }
+          }}
         >
-          Yeni Departman
+          Yeni Departman Ekle
         </Button>
       </Box>
 
       {/* İstatistikler */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <Card sx={{ minWidth: 200 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <DepartmentIcon sx={{ color: 'primary.main', mr: 1 }} />
+      <Box 
+        sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)'
+          },
+          gap: 3,
+          mb: 4
+        }}
+      >
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <DepartmentIcon sx={{ fontSize: 30, opacity: 0.9, mr: 1 }} />
               <Typography variant="h6">Toplam Departman</Typography>
             </Box>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
               {departments.length}
             </Typography>
           </CardContent>
         </Card>
 
-        <Card sx={{ minWidth: 200 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>Toplam Çalışan</Typography>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Toplam Çalışan</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
               {departments.reduce((total, dept) => total + dept.employeeCount, 0)}
             </Typography>
           </CardContent>
         </Card>
 
-        <Card sx={{ minWidth: 200 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>Aktif Departman</Typography>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'info.main' }}>
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Aktif Departman</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
               {departments.filter(dept => dept.status === 'active').length}
             </Typography>
           </CardContent>
