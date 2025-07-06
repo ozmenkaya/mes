@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, Typography, Card, CardContent, Chip } from '@mui/material';
 import { Assignment, CheckCircle, Speed, People } from '@mui/icons-material';
@@ -8,6 +8,10 @@ import Login from './components/Login';
 import Layout from './components/Layout';
 import Departments from './pages/Departments';
 import Users from './pages/Users';
+import Shifts from './pages/Shifts';
+import Locations from './pages/Locations';
+import GeneralSettingsPage from './pages/GeneralSettings';
+import SecuritySettingsPage from './pages/SecuritySettings';
 
 // Dashboard component inline
 const Dashboard = () => (
@@ -193,12 +197,299 @@ const Reports = () => (
   </Box>
 );
 
-const FactorySettings = () => (
+const FactorySettings = () => {
+  const navigate = useNavigate();
+
+  return (
   <Box sx={{ p: 3 }}>
-    <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>Fabrika Ayarları</Typography>
-    <Typography>Fabrika ayarları ana sayfası geliştirilme aşamasında...</Typography>
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h3" component="h1" sx={{ 
+        fontWeight: 700, 
+        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+        backgroundClip: 'text',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        mb: 1 
+      }}>
+        Fabrika Ayarları
+      </Typography>
+      <Typography variant="h6" color="text.secondary">
+        Fabrika yapılandırma ve yönetim ayarları
+      </Typography>
+    </Box>
+
+    <Box 
+      sx={{ 
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)'
+        },
+        gap: 3
+      }}
+    >
+      {/* Departmanlar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+        border: '1px solid rgba(37, 99, 235, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(37, 99, 235, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/departments')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>🏢</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Departmanlar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fabrika departmanlarını yönetin, yeni departmanlar ekleyin ve mevcut olanları düzenleyin.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              color: '#2563eb',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Kullanıcılar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
+        border: '1px solid rgba(16, 185, 129, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(16, 185, 129, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/users')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>👥</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Kullanıcılar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Sistem kullanıcılarını yönetin, roller atayın ve izinleri düzenleyin.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              color: '#10b981',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Vardiyalar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
+        border: '1px solid rgba(245, 158, 11, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(245, 158, 11, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/shifts')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>⏰</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Vardiyalar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Çalışma vardiyalarını tanımlayın ve yönetin.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              color: '#f59e0b',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Lokasyonlar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(139, 92, 246, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/locations')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>📍</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Lokasyonlar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fabrika içi lokasyonları ve alan tanımlarını yönetin.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(139, 92, 246, 0.1)',
+              color: '#8b5cf6',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Genel Ayarlar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(107, 114, 128, 0.05) 100%)',
+        border: '1px solid rgba(107, 114, 128, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(107, 114, 128, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/general')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>⚙️</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Genel Ayarlar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Sistem geneli yapılandırma ve tercih ayarları.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(107, 114, 128, 0.1)',
+              color: '#6b7280',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Güvenlik Ayarları */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%)',
+        border: '1px solid rgba(239, 68, 68, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(239, 68, 68, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/security')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>🔒</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Güvenlik Ayarları
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Sistem güvenliği ve erişim kontrol ayarları.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
+    </Box>
   </Box>
-);
+  );
+};
 
 const AppContent = () => {
   const { user, login, error } = useAuth();
@@ -222,6 +513,10 @@ const AppContent = () => {
           <Route path="/factory-settings" element={<FactorySettings />} />
           <Route path="/factory-settings/departments" element={<Departments />} />
           <Route path="/factory-settings/users" element={<Users />} />
+          <Route path="/factory-settings/shifts" element={<Shifts />} />
+          <Route path="/factory-settings/locations" element={<Locations />} />
+          <Route path="/factory-settings/general" element={<GeneralSettingsPage />} />
+          <Route path="/factory-settings/security" element={<SecuritySettingsPage />} />
         </Routes>
       </Layout>
     </Router>
