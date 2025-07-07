@@ -12,6 +12,7 @@ import Shifts from './pages/Shifts';
 import Locations from './pages/Locations';
 import GeneralSettingsPage from './pages/GeneralSettings';
 import SecuritySettings from './pages/SecuritySettings';
+import Machines from './pages/Machines';
 
 // Dashboard component inline
 const Dashboard = () => (
@@ -486,6 +487,49 @@ const FactorySettings = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Makinalar */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(75, 85, 99, 0.1) 0%, rgba(75, 85, 99, 0.05) 100%)',
+        border: '1px solid rgba(75, 85, 99, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(75, 85, 99, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/machines')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #4b5563 0%, #6b7280 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>🏭</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Makinalar
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fabrika makinalarını yönetin, durum izleme ve bakım planlaması yapın.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(75, 85, 99, 0.1)',
+              color: '#4b5563',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
     </Box>
   </Box>
   );
@@ -517,6 +561,7 @@ const AppContent = () => {
           <Route path="/factory-settings/locations" element={<Locations />} />
           <Route path="/factory-settings/general" element={<GeneralSettingsPage />} />
           <Route path="/factory-settings/security" element={<SecuritySettings />} />
+          <Route path="/factory-settings/machines" element={<Machines />} />
         </Routes>
       </Layout>
     </Router>

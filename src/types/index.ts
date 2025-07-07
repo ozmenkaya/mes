@@ -201,3 +201,25 @@ export interface GeneralSettings {
   qualityCheckRequired: boolean;
   autoCompleteWorkOrders: boolean;
 }
+
+export interface Machine {
+  id: string;
+  code: string;
+  name: string;
+  type: 'cnc' | 'press' | 'lathe' | 'mill' | 'robot' | 'conveyor' | 'other';
+  manufacturer: string;
+  model: string;
+  location: string;
+  department: string;
+  status: 'operational' | 'maintenance' | 'breakdown' | 'idle';
+  capacity: number;
+  efficiency: number;
+  utilization: number;
+  lastMaintenanceDate?: string;
+  nextMaintenanceDate?: string;
+  installationDate: string;
+  isActive: boolean;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
