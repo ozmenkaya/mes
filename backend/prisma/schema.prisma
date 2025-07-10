@@ -1,0 +1,175 @@
+// MES (Manufacturing Execution System) Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Departmanlar
+model Department {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  manager     String?
+  location    String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // İlişkiler
+  personnel            Personnel[]
+  machines             MachineOnDepartment[]
+  @@map("departments")
+}
+
+// Personel
+model Personnel {
+  id           String   @id @default(cuid())
+  name         String
+  position     String
+  email        String?  @unique
+  phone        String?
+  departmentId String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // İlişkiler
+  department              Department @relation(fields: [departmentId], references: [id])
+  machines                MachineOnPersonnel[]
+  maintenanceResponsible  MaintenanceSchedule[]
+  
+  @@map("personnel")
+}
+
+// Lokasyonlar
+model Location {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  type        String   // 'building', 'floor', 'area', 'workstation'
+  parentId    String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // İlişkiler
+  parent   Location?  @relation("LocationParent", fields: [parentId], references: [id])
+  children Location[] @relation("LocationParent")
+  machines Machine[]
+  
+  @@map("locations")
+}
+
+// Makinalar
+model Machine {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  name             String
+  manufacturer     String
+  model            String
+  locationId       String
+  status           String   @default("operational") // 'operational', 'maintenance', 'breakdown', 'idle'
+  capacity         Float?
+  efficiency       Float?   @default(0)
+  utilization      Float?   @default(0)
+  installationDate DateTime
+  isActive         Boolean  @default(true)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // İlişkiler
+  location                Location                 @relation(fields: [locationId], references: [id])
+  departments             MachineOnDepartment[]
+  assignedPersonnel       MachineOnPersonnel[]
+  maintenanceSchedule     MaintenanceSchedule?
+  performanceHistory      PerformanceHistory[]
+  
+  @@map("machines")
+}
+
+// Makina-Departman İlişkisi (Many-to-Many)
+model MachineOnDepartment {
+  machineId    String
+  departmentId String
+  assignedAt   DateTime @default(now())
+
+  machine    Machine    @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([machineId, departmentId])
+  @@map("machine_departments")
+}
+
+// Makina-Personel İlişkisi (Many-to-Many)
+model MachineOnPersonnel {
+  machineId   String
+  personnelId String
+  assignedAt  DateTime @default(now())
+
+  machine   Machine   @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  personnel Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+
+  @@id([machineId, personnelId])
+  @@map("machine_personnel")
+}
+
+// Bakım Programları
+model MaintenanceSchedule {
+  id                    String   @id @default(cuid())
+  machineId             String   @unique
+  lastMaintenanceDate   DateTime?
+  nextMaintenanceDate   DateTime?
+  maintenanceInterval   Int      @default(30) // gün
+  maintenanceType       String   @default("monthly") // 'daily', 'weekly', 'monthly', 'quarterly', 'yearly'
+  responsibleTechnicianId String?
+  maintenanceNotes      String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // İlişkiler
+  machine               Machine    @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  responsibleTechnician Personnel? @relation(fields: [responsibleTechnicianId], references: [id])
+  
+  @@map("maintenance_schedules")
+}
+
+// Performans Geçmişi
+model PerformanceHistory {
+  id               String   @id @default(cuid())
+  machineId        String
+  date             DateTime
+  efficiency       Float
+  utilization      Float
+  downtimeMinutes  Int      @default(0)
+  maintenanceMinutes Int    @default(0)
+  createdAt        DateTime @default(now())
+
+  // İlişkiler
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  
+  @@map("performance_history")
+}
+
+// Kullanıcılar (Authentication)
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("operator") // 'admin', 'manager', 'operator', 'quality', 'maintenance'
+  firstName String
+  lastName  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}

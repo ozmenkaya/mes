@@ -1,18 +1,9 @@
-// ÜYS sistemi için API servis fonksiyonları
 import axios from 'axios';
-import type { 
-  WorkOrder, 
-  Product, 
-  QualityCheck, 
-  InventoryItem, 
-  ProductionMetrics,
-  Equipment,
-  DashboardMetrics,
-  User
-} from '../types';
+import type { Machine } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
+// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -20,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// İstek interceptor'ı - yetkilendirme token'ını ekler
+// Request interceptor to add auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken');
   if (token) {
@@ -29,76 +20,80 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// İş Emirleri API
-export const workOrderService = {
-  getAll: () => api.get<WorkOrder[]>('/work-orders'),
-  getById: (id: string) => api.get<WorkOrder>(`/work-orders/${id}`),
-  create: (workOrder: Omit<WorkOrder, 'id' | 'createdAt' | 'updatedAt'>) => 
-    api.post<WorkOrder>('/work-orders', workOrder),
-  update: (id: string, workOrder: Partial<WorkOrder>) => 
-    api.put<WorkOrder>(`/work-orders/${id}`, workOrder),
-  delete: (id: string) => api.delete(`/work-orders/${id}`),
-  updateStatus: (id: string, status: WorkOrder['status']) =>
-    api.patch<WorkOrder>(`/work-orders/${id}/status`, { status }),
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Machine API calls
+export const machineApi = {
+  // Get all machines
+  getAll: async (): Promise<Machine[]> => {
+    const response = await api.get('/machines');
+    return response.data;
+  },
+
+  // Create new machine
+  create: async (machine: Partial<Machine>): Promise<{ message: string; machineId: string }> => {
+    const response = await api.post('/machines', machine);
+    return response.data;
+  },
+
+  // Update machine
+  update: async (id: string, machine: Partial<Machine>): Promise<{ message: string }> => {
+    const response = await api.put(`/machines/${id}`, machine);
+    return response.data;
+  },
+
+  // Delete machine
+  delete: async (id: string): Promise<{ message: string }> => {
+    const response = await api.delete(`/machines/${id}`);
+    return response.data;
+  },
 };
 
-// Products API
-export const productService = {
-  getAll: () => api.get<Product[]>('/products'),
-  getById: (id: string) => api.get<Product>(`/products/${id}`),
-  create: (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => 
-    api.post<Product>('/products', product),
-  update: (id: string, product: Partial<Product>) => 
-    api.put<Product>(`/products/${id}`, product),
-  delete: (id: string) => api.delete(`/products/${id}`),
+// Department API calls
+export const departmentApi = {
+  getAll: async () => {
+    const response = await api.get('/departments');
+    return response.data;
+  },
 };
 
-// Quality API
-export const qualityService = {
-  getAll: () => api.get<QualityCheck[]>('/quality-checks'),
-  getByWorkOrder: (workOrderId: string) => 
-    api.get<QualityCheck[]>(`/quality-checks/work-order/${workOrderId}`),
-  create: (qualityCheck: Omit<QualityCheck, 'id'>) => 
-    api.post<QualityCheck>('/quality-checks', qualityCheck),
-  update: (id: string, qualityCheck: Partial<QualityCheck>) => 
-    api.put<QualityCheck>(`/quality-checks/${id}`, qualityCheck),
+// Personnel API calls
+export const personnelApi = {
+  getAll: async () => {
+    const response = await api.get('/personnel');
+    return response.data;
+  },
 };
 
-// Inventory API
-export const inventoryService = {
-  getAll: () => api.get<InventoryItem[]>('/inventory'),
-  getById: (id: string) => api.get<InventoryItem>(`/inventory/${id}`),
-  updateStock: (id: string, quantity: number, type: 'in' | 'out') =>
-    api.patch<InventoryItem>(`/inventory/${id}/stock`, { quantity, type }),
-  getLowStock: () => api.get<InventoryItem[]>('/inventory/low-stock'),
+// Location API calls
+export const locationApi = {
+  getAll: async () => {
+    const response = await api.get('/locations');
+    return response.data;
+  },
 };
 
-// Production Metrics API
-export const metricsService = {
-  getProduction: (dateRange?: { start: string; end: string }) => 
-    api.get<ProductionMetrics[]>('/metrics/production', { params: dateRange }),
-  getDashboard: () => api.get<DashboardMetrics>('/metrics/dashboard'),
-  getEfficiency: (workstation?: string, dateRange?: { start: string; end: string }) =>
-    api.get('/metrics/efficiency', { params: { workstation, ...dateRange } }),
-};
+// Auth API calls
+export const authApi = {
+  login: async (username: string, password: string) => {
+    const response = await api.post('/auth/login', { username, password });
+    return response.data;
+  },
 
-// Equipment API
-export const equipmentService = {
-  getAll: () => api.get<Equipment[]>('/equipment'),
-  getById: (id: string) => api.get<Equipment>(`/equipment/${id}`),
-  updateStatus: (id: string, status: Equipment['status']) =>
-    api.patch<Equipment>(`/equipment/${id}/status`, { status }),
-  scheduleMaintenancwe: (id: string, date: string) =>
-    api.patch<Equipment>(`/equipment/${id}/maintenance`, { date }),
-};
-
-// Auth API
-export const authService = {
-  login: (credentials: { username: string; password: string }) =>
-    api.post<{ token: string; user: User }>('/auth/login', credentials),
-  logout: () => api.post('/auth/logout'),
-  getCurrentUser: () => api.get<User>('/auth/me'),
-  refreshToken: () => api.post<{ token: string }>('/auth/refresh'),
+  me: async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
+  },
 };
 
 export default api;

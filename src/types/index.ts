@@ -206,20 +206,35 @@ export interface Machine {
   id: string;
   code: string;
   name: string;
-  type: 'cnc' | 'press' | 'lathe' | 'mill' | 'robot' | 'conveyor' | 'other';
   manufacturer: string;
   model: string;
   location: string;
-  department: string;
+  departments: string[]; // Multiple departments
+  assignedPersonnel: string[]; // Multiple personnel
   status: 'operational' | 'maintenance' | 'breakdown' | 'idle';
   capacity: number;
   efficiency: number;
   utilization: number;
-  lastMaintenanceDate?: string;
-  nextMaintenanceDate?: string;
   installationDate: string;
   isActive: boolean;
   notes?: string;
+  // Maintenance properties
+  maintenanceSchedule: {
+    lastMaintenanceDate?: string;
+    nextMaintenanceDate?: string;
+    maintenanceInterval: number; // days
+    maintenanceType: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+    responsibleTechnician?: string;
+    maintenanceNotes?: string;
+  };
+  // Performance tracking
+  performanceHistory: {
+    date: string;
+    efficiency: number;
+    utilization: number;
+    downtimeMinutes: number;
+    maintenanceMinutes: number;
+  }[];
   createdAt: string;
   updatedAt: string;
 }

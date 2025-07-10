@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -24,6 +24,10 @@ import {
   MenuItem,
   Switch,
   FormControlLabel,
+  Autocomplete,
+  Divider,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,102 +38,76 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   Settings as SettingsIcon,
+  Schedule as ScheduleIcon,
+  Engineering as MaintenanceIcon,
 } from '@mui/icons-material';
 import type { Machine } from '../types';
+import { machineApi, departmentApi, personnelApi, locationApi } from '../services/api';
 
 const Machines: React.FC = () => {
-  const [machines, setMachines] = useState<Machine[]>([
-    {
-      id: '1',
-      code: 'CNC-001',
-      name: 'CNC Torna Tezgahı #1',
-      type: 'cnc',
-      manufacturer: 'HAAS',
-      model: 'ST-20',
-      location: 'Üretim Alanı A',
-      department: 'Torna Atölyesi',
-      status: 'operational',
-      capacity: 100,
-      efficiency: 87.5,
-      utilization: 92.3,
-      lastMaintenanceDate: '2024-12-15',
-      nextMaintenanceDate: '2025-02-15',
-      installationDate: '2023-06-15',
-      isActive: true,
-      notes: 'Yüksek hassasiyet gerektiren işlemler için kullanılır',
-      createdAt: '2023-06-15 10:00',
-      updatedAt: '2024-12-20 14:30',
-    },
-    {
-      id: '2',
-      code: 'PRESS-001',
-      name: 'Hidrolik Pres #1',
-      type: 'press',
-      manufacturer: 'AIDA',
-      model: 'HP-500',
-      location: 'Üretim Alanı B',
-      department: 'Presleme Atölyesi',
-      status: 'maintenance',
-      capacity: 500,
-      efficiency: 78.2,
-      utilization: 85.7,
-      lastMaintenanceDate: '2024-12-20',
-      nextMaintenanceDate: '2025-03-20',
-      installationDate: '2022-03-10',
-      isActive: true,
-      notes: 'Haftalık bakım programında',
-      createdAt: '2022-03-10 09:00',
-      updatedAt: '2024-12-20 16:45',
-    },
-    {
-      id: '3',
-      code: 'ROBOT-001',
-      name: 'Endüstriyel Robot #1',
-      type: 'robot',
-      manufacturer: 'KUKA',
-      model: 'KR-120',
-      location: 'Montaj Hattı 1',
-      department: 'Montaj Atölyesi',
-      status: 'operational',
-      capacity: 120,
-      efficiency: 94.1,
-      utilization: 88.9,
-      lastMaintenanceDate: '2024-11-30',
-      nextMaintenanceDate: '2025-01-30',
-      installationDate: '2023-01-20',
-      isActive: true,
-      notes: 'Otomatik montaj işlemleri için kullanılır',
-      createdAt: '2023-01-20 11:00',
-      updatedAt: '2024-12-18 13:20',
-    },
-    {
-      id: '4',
-      code: 'MILL-001',
-      name: 'Freze Tezgahı #1',
-      type: 'mill',
-      manufacturer: 'DMG MORI',
-      model: 'NVX-5000',
-      location: 'Üretim Alanı A',
-      department: 'Freze Atölyesi',
-      status: 'breakdown',
-      capacity: 150,
-      efficiency: 65.3,
-      utilization: 45.2,
-      lastMaintenanceDate: '2024-10-15',
-      nextMaintenanceDate: '2025-01-15',
-      installationDate: '2022-08-05',
-      isActive: true,
-      notes: 'Arızalı - Motor değişimi gerekiyor',
-      createdAt: '2022-08-05 14:30',
-      updatedAt: '2024-12-21 09:15',
-    },
-  ]);
-
+  // States
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [personnel, setPersonnel] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Machine>>({});
+
+  // Helper function to update maintenance schedule
+  const updateMaintenanceSchedule = (field: string, value: any) => {
+    const currentSchedule = formData.maintenanceSchedule || {
+      maintenanceInterval: 30,
+      maintenanceType: 'monthly' as const,
+      lastMaintenanceDate: '',
+      nextMaintenanceDate: '',
+      responsibleTechnician: '',
+      maintenanceNotes: '',
+    };
+    
+    setFormData({
+      ...formData,
+      maintenanceSchedule: {
+        ...currentSchedule,
+        [field]: value
+      }
+    });
+  };
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [machinesData, departmentsData, personnelData, locationsData] = await Promise.all([
+          machineApi.getAll(),
+          departmentApi.getAll(),
+          personnelApi.getAll(),
+          locationApi.getAll(),
+        ]);
+
+        setMachines(machinesData);
+        setDepartments(departmentsData);
+        setPersonnel(personnelData);
+        setLocations(locationsData);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Veriler yüklenirken hata oluştu. Backend sunucusu çalışıyor mu?');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const getStatusColor = (status: Machine['status']) => {
     switch (status) {
@@ -151,44 +129,77 @@ const Machines: React.FC = () => {
     }
   };
 
-  const getTypeText = (type: Machine['type']) => {
-    switch (type) {
-      case 'cnc': return 'CNC';
-      case 'press': return 'Pres';
-      case 'lathe': return 'Torna';
-      case 'mill': return 'Freze';
-      case 'robot': return 'Robot';
-      case 'conveyor': return 'Konveyör';
-      case 'other': return 'Diğer';
-      default: return type;
-    }
-  };
-
   const handleAddMachine = () => {
     setEditingMachine(null);
+    setFormData({});
     setOpen(true);
   };
 
   const handleEditMachine = (machine: Machine) => {
     setEditingMachine(machine);
+    setFormData(machine);
     setOpen(true);
   };
 
-  const handleDeleteMachine = (id: string) => {
-    setMachines(machines.filter(machine => machine.id !== id));
+  const handleDeleteMachine = async (id: string) => {
+    try {
+      setSubmitting(true);
+      await machineApi.delete(id);
+      setMachines(machines.filter(machine => machine.id !== id));
+      setSuccessMessage('Makina başarıyla silindi');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Error deleting machine:', err);
+      setError('Makina silinirken hata oluştu');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      if (editingMachine) {
+        // Update existing machine
+        await machineApi.update(editingMachine.id, formData);
+        setMachines(machines.map(machine => 
+          machine.id === editingMachine.id 
+            ? { ...machine, ...formData } 
+            : machine
+        ));
+        setSuccessMessage('Makina başarıyla güncellendi');
+      } else {
+        // Create new machine
+        await machineApi.create(formData);
+        // Refetch data to get the new machine with generated ID
+        const updatedMachines = await machineApi.getAll();
+        setMachines(updatedMachines);
+        setSuccessMessage('Makina başarıyla eklendi');
+      }
+
+      handleClose();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Error saving machine:', err);
+      setError('Makina kaydedilirken hata oluştu');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
     setOpen(false);
     setEditingMachine(null);
+    setFormData({});
   };
 
   const filteredMachines = machines.filter(machine => {
     const matchesSearch = machine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          machine.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || machine.status === statusFilter;
-    const matchesType = typeFilter === 'all' || machine.type === typeFilter;
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus;
   });
 
   return (
@@ -213,6 +224,20 @@ const Machines: React.FC = () => {
           Fabrika makinalarını yönetin, durumlarını izleyin ve bakım planlaması yapın
         </Typography>
       </Box>
+
+      {/* Error Message */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Success Message */}
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {successMessage}
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <Box 
@@ -332,24 +357,6 @@ const Machines: React.FC = () => {
               </Select>
             </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Tip</InputLabel>
-              <Select
-                value={typeFilter}
-                label="Tip"
-                onChange={(e) => setTypeFilter(e.target.value)}
-              >
-                <MenuItem value="all">Tümü</MenuItem>
-                <MenuItem value="cnc">CNC</MenuItem>
-                <MenuItem value="press">Pres</MenuItem>
-                <MenuItem value="lathe">Torna</MenuItem>
-                <MenuItem value="mill">Freze</MenuItem>
-                <MenuItem value="robot">Robot</MenuItem>
-                <MenuItem value="conveyor">Konveyör</MenuItem>
-                <MenuItem value="other">Diğer</MenuItem>
-              </Select>
-            </FormControl>
-
             <Box sx={{ ml: 'auto' }}>
               <Button
                 variant="contained"
@@ -370,20 +377,28 @@ const Machines: React.FC = () => {
       </Card>
 
       {/* Machines Table */}
-      <Card>
-        <CardContent sx={{ p: 0 }}>
-          <TableContainer>
-            <Table>
+      {loading ? (
+        <Card>
+          <CardContent sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress size={60} />
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent sx={{ p: 0 }}>
+            <TableContainer>
+              <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'grey.50' }}>
                   <TableCell sx={{ fontWeight: 600 }}>Kod</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Makina Adı</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Tip</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Lokasyon</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Departmanlar</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Atanan Personel</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Durum</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Verimlilik</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Kullanım</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Son Bakım</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Sonraki Bakım</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>İşlemler</TableCell>
                 </TableRow>
               </TableHead>
@@ -406,17 +421,41 @@ const Machines: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={getTypeText(machine.type)} 
-                        size="small"
-                        variant="outlined"
-                      />
+                      <Typography variant="body2">{machine.location}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">{machine.location}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {machine.department}
-                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {machine.departments.map((dept, index) => (
+                          <Chip 
+                            key={index}
+                            label={dept} 
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        ))}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {machine.assignedPersonnel.slice(0, 2).map((person, index) => (
+                          <Chip 
+                            key={index}
+                            label={person} 
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                          />
+                        ))}
+                        {machine.assignedPersonnel.length > 2 && (
+                          <Chip 
+                            label={`+${machine.assignedPersonnel.length - 2}`} 
+                            size="small"
+                            variant="outlined"
+                            color="default"
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -452,14 +491,21 @@ const Machines: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {machine.utilization}%
+                      <Typography variant="body2">
+                        {machine.maintenanceSchedule.lastMaintenanceDate || 'Belirtilmemiş'}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">
-                        {machine.lastMaintenanceDate || 'Belirtilmemiş'}
-                      </Typography>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {machine.maintenanceSchedule.nextMaintenanceDate || 'Planlanmamış'}
+                        </Typography>
+                        {machine.maintenanceSchedule.responsibleTechnician && (
+                          <Typography variant="caption" color="text.secondary">
+                            Sorumlu: {machine.maintenanceSchedule.responsibleTechnician}
+                          </Typography>
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
@@ -486,6 +532,7 @@ const Machines: React.FC = () => {
           </TableContainer>
         </CardContent>
       </Card>
+      )}
 
       {/* Add/Edit Dialog */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -507,72 +554,216 @@ const Machines: React.FC = () => {
               <TextField
                 fullWidth
                 label="Makina Kodu"
-                defaultValue={editingMachine?.code || ''}
+                value={formData.code || ''}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                 variant="outlined"
               />
               <TextField
                 fullWidth
                 label="Makina Adı"
-                defaultValue={editingMachine?.name || ''}
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 variant="outlined"
               />
-              <FormControl fullWidth>
-                <InputLabel>Makina Tipi</InputLabel>
-                <Select
-                  defaultValue={editingMachine?.type || 'other'}
-                  label="Makina Tipi"
-                >
-                  <MenuItem value="cnc">CNC</MenuItem>
-                  <MenuItem value="press">Pres</MenuItem>
-                  <MenuItem value="lathe">Torna</MenuItem>
-                  <MenuItem value="mill">Freze</MenuItem>
-                  <MenuItem value="robot">Robot</MenuItem>
-                  <MenuItem value="conveyor">Konveyör</MenuItem>
-                  <MenuItem value="other">Diğer</MenuItem>
-                </Select>
-              </FormControl>
               <TextField
                 fullWidth
                 label="Üretici"
-                defaultValue={editingMachine?.manufacturer || ''}
+                value={formData.manufacturer || ''}
+                onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
                 variant="outlined"
               />
               <TextField
                 fullWidth
                 label="Model"
-                defaultValue={editingMachine?.model || ''}
+                value={formData.model || ''}
+                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                 variant="outlined"
               />
-              <TextField
-                fullWidth
-                label="Lokasyon"
-                defaultValue={editingMachine?.location || ''}
-                variant="outlined"
+              <Autocomplete
+                options={locations.map(loc => loc.name)}
+                value={formData.location || ''}
+                onChange={(_, newValue) => setFormData({ ...formData, location: newValue || '' })}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Lokasyon"
+                    placeholder="Lokasyon seçin"
+                  />
+                )}
+                sx={{ gridColumn: { sm: 'span 2' } }}
+              />
+              <Autocomplete
+                multiple
+                options={departments.map(dept => dept.name)}
+                value={formData.departments || []}
+                onChange={(_, newValue) => setFormData({ ...formData, departments: newValue })}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Departmanlar"
+                    placeholder="Departman seçin"
+                  />
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip 
+                      variant="outlined" 
+                      label={option} 
+                      {...getTagProps({ index })} 
+                      key={index}
+                      color="primary"
+                    />
+                  ))
+                }
               />
             </Box>
-            <TextField
-              fullWidth
-              label="Notlar"
-              defaultValue={editingMachine?.notes || ''}
-              variant="outlined"
-              multiline
-              rows={3}
-            />
-            <FormControlLabel
-              control={
-                <Switch 
-                  defaultChecked={editingMachine?.isActive ?? true}
+            
+            <Divider />
+            
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <MaintenanceIcon />
+                Personel Ataması
+              </Typography>
+              <Autocomplete
+                multiple
+                options={personnel.map(p => p.name)}
+                value={formData.assignedPersonnel || []}
+                onChange={(_, newValue) => setFormData({ ...formData, assignedPersonnel: newValue })}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Atanan Personel"
+                    placeholder="Personel seçin"
+                  />
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip 
+                      variant="outlined" 
+                      label={option} 
+                      {...getTagProps({ index })} 
+                      key={index}
+                      color="secondary"
+                    />
+                  ))
+                }
+              />
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ScheduleIcon />
+                Bakım Ayarları
+              </Typography>
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                gap: 2 
+              }}>
+                <TextField
+                  fullWidth
+                  label="Bakım Aralığı (Gün)"
+                  type="number"
+                  value={formData.maintenanceSchedule?.maintenanceInterval || 30}
+                  onChange={(e) => updateMaintenanceSchedule('maintenanceInterval', Number(e.target.value))}
+                  variant="outlined"
                 />
-              }
-              label="Aktif"
-            />
+                <FormControl fullWidth>
+                  <InputLabel>Bakım Tipi</InputLabel>
+                  <Select
+                    value={formData.maintenanceSchedule?.maintenanceType || 'monthly'}
+                    onChange={(e) => updateMaintenanceSchedule('maintenanceType', e.target.value)}
+                    label="Bakım Tipi"
+                  >
+                    <MenuItem value="daily">Günlük</MenuItem>
+                    <MenuItem value="weekly">Haftalık</MenuItem>
+                    <MenuItem value="monthly">Aylık</MenuItem>
+                    <MenuItem value="quarterly">Üç Aylık</MenuItem>
+                    <MenuItem value="yearly">Yıllık</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Son Bakım Tarihi"
+                  type="date"
+                  value={formData.maintenanceSchedule?.lastMaintenanceDate || ''}
+                  onChange={(e) => updateMaintenanceSchedule('lastMaintenanceDate', e.target.value)}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  fullWidth
+                  label="Sonraki Bakım Tarihi"
+                  type="date"
+                  value={formData.maintenanceSchedule?.nextMaintenanceDate || ''}
+                  onChange={(e) => updateMaintenanceSchedule('nextMaintenanceDate', e.target.value)}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                />
+                <Autocomplete
+                  options={personnel.map(p => p.name)}
+                  value={formData.maintenanceSchedule?.responsibleTechnician || ''}
+                  onChange={(_, newValue) => updateMaintenanceSchedule('responsibleTechnician', newValue || '')}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Sorumlu Teknisyen"
+                      placeholder="Teknisyen seçin"
+                    />
+                  )}
+                  sx={{ gridColumn: { sm: 'span 2' } }}
+                />
+                <TextField
+                  fullWidth
+                  label="Bakım Notları"
+                  value={formData.maintenanceSchedule?.maintenanceNotes || ''}
+                  onChange={(e) => updateMaintenanceSchedule('maintenanceNotes', e.target.value)}
+                  variant="outlined"
+                  multiline
+                  rows={2}
+                  sx={{ gridColumn: { sm: 'span 2' } }}
+                />
+              </Box>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <TextField
+                fullWidth
+                label="Genel Notlar"
+                value={formData.notes || ''}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                variant="outlined"
+                multiline
+                rows={3}
+              />
+              <Box sx={{ mt: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Switch 
+                      checked={formData.isActive ?? true}
+                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    />
+                  }
+                  label="Aktif"
+                />
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleClose}>İptal</Button>
+          <Button onClick={handleClose} disabled={submitting}>
+            İptal
+          </Button>
           <Button
             variant="contained"
-            onClick={handleClose}
+            onClick={handleSubmit}
+            disabled={submitting}
+            startIcon={submitting ? <CircularProgress size={16} /> : null}
             sx={{
               background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
               '&:hover': {
@@ -580,7 +771,7 @@ const Machines: React.FC = () => {
               },
             }}
           >
-            {editingMachine ? 'Güncelle' : 'Ekle'}
+            {submitting ? 'Kaydediliyor...' : (editingMachine ? 'Güncelle' : 'Ekle')}
           </Button>
         </DialogActions>
       </Dialog>
