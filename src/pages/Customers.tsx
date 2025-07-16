@@ -43,18 +43,13 @@ import {
 
 interface Customer {
   id: string;
+  code?: string;
   type: 'customer' | 'supplier' | 'both';
   companyName: string;
   contactPerson: string;
   email: string;
   phone: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
+  address: string;
   taxNumber: string;
   paymentTerms: string;
   creditLimit?: number;
@@ -89,13 +84,7 @@ const Customers: React.FC = () => {
       contactPerson: 'Mehmet Özkan',
       email: 'mehmet@abctekstil.com',
       phone: '+90 212 555 0101',
-      address: {
-        street: 'Atatürk Cad. No:123',
-        city: 'İstanbul',
-        state: 'İstanbul',
-        postalCode: '34000',
-        country: 'Türkiye'
-      },
+      address: 'Atatürk Cad. No:123, İstanbul, 34000, Türkiye',
       taxNumber: '1234567890',
       paymentTerms: '30 gün',
       creditLimit: 100000,
@@ -113,13 +102,7 @@ const Customers: React.FC = () => {
       contactPerson: 'Ayşe Kara',
       email: 'ayse@xyzmakine.com',
       phone: '+90 312 555 0202',
-      address: {
-        street: 'Sanayi Sitesi 5. Blok',
-        city: 'Ankara',
-        state: 'Ankara',
-        postalCode: '06000',
-        country: 'Türkiye'
-      },
+      address: 'Sanayi Sitesi 5. Blok, Ankara, 06000, Türkiye',
       taxNumber: '0987654321',
       paymentTerms: '15 gün',
       category: 'Makine',
@@ -138,13 +121,19 @@ const Customers: React.FC = () => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      // Mock API call
-      setTimeout(() => {
-        setCustomers(mockCustomers);
-        setLoading(false);
-      }, 1000);
+      // Gerçek API'den veri çek
+      const response = await fetch('http://localhost:3001/api/customers');
+      if (!response.ok) {
+        throw new Error('Veri çekme başarısız');
+      }
+      const data = await response.json();
+      setCustomers(data);
     } catch (error) {
+      console.error('Fetch error:', error);
       setError('Firma verileri yüklenirken hata oluştu');
+      // Hata durumunda mock data kullan
+      setCustomers(mockCustomers);
+    } finally {
       setLoading(false);
     }
   };
@@ -158,13 +147,7 @@ const Customers: React.FC = () => {
     setFormData({
       type: 'customer',
       status: 'active',
-      address: {
-        street: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: 'Türkiye'
-      }
+      address: ''
     });
     setDialogOpen(true);
   };
@@ -175,44 +158,111 @@ const Customers: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const handleDeleteCustomer = (id: string) => {
+  const handleDeleteCustomer = async (id: string) => {
     if (window.confirm('Bu firmayı silmek istediğinizden emin misiniz?')) {
-      setCustomers(customers.filter(c => c.id !== id));
-      setSuccess('Firma başarıyla silindi');
-      setTimeout(() => setSuccess(null), 3000);
+      try {
+        setLoading(true);
+        
+        // Backend'e DELETE request gönder
+        const response = await fetch(`http://localhost:3001/api/customers/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Silme işlemi başarısız');
+        }
+
+        // Local state'i güncelle
+        setCustomers(customers.filter(c => c.id !== id));
+        setSuccess('Firma başarıyla silindi');
+        setTimeout(() => setSuccess(null), 3000);
+      } catch (error) {
+        console.error('Delete error:', error);
+        setError('Firma silinirken hata oluştu');
+        setTimeout(() => setError(null), 3000);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleSaveCustomer = () => {
+  const handleSaveCustomer = async () => {
     if (!formData.companyName || !formData.contactPerson || !formData.email) {
       setError('Zorunlu alanları doldurun');
       return;
     }
 
-    const now = new Date().toISOString().split('T')[0];
-    
-    if (editingCustomer) {
-      const updatedCustomers = customers.map(c => 
-        c.id === editingCustomer.id 
-          ? { ...formData, id: editingCustomer.id, updatedAt: now } as Customer
-          : c
-      );
-      setCustomers(updatedCustomers);
-      setSuccess('Firma başarıyla güncellendi');
-    } else {
-      const newCustomer: Customer = {
-        ...formData,
-        id: Date.now().toString(),
-        createdAt: now,
-        updatedAt: now,
-      } as Customer;
-      setCustomers([...customers, newCustomer]);
-      setSuccess('Firma başarıyla eklendi');
-    }
+    try {
+      setLoading(true);
+      setError(null);
 
-    setDialogOpen(false);
-    setFormData({});
-    setTimeout(() => setSuccess(null), 3000);
+      // Backend için veri formatı düzenle
+      const customerData = {
+        code: formData.code || `CUST${Date.now()}`,
+        name: formData.companyName,
+        type: formData.type || 'customer',
+        contactPerson: formData.contactPerson,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address || '',
+        taxNumber: formData.taxNumber,
+        paymentTerms: formData.paymentTerms,
+        creditLimit: formData.creditLimit,
+        status: formData.status || 'active',
+        notes: formData.notes
+      };
+
+      if (editingCustomer) {
+        // Update existing customer
+        const response = await fetch(`http://localhost:3001/api/customers/${editingCustomer.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Güncelleme başarısız');
+        }
+
+        const updatedCustomer = await response.json();
+        setCustomers(customers.map(c => 
+          c.id === editingCustomer.id ? updatedCustomer : c
+        ));
+        setSuccess('Firma başarıyla güncellendi');
+      } else {
+        // Create new customer
+        const response = await fetch('http://localhost:3001/api/customers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Ekleme başarısız');
+        }
+
+        const newCustomer = await response.json();
+        setCustomers([...customers, newCustomer]);
+        setSuccess('Firma başarıyla eklendi');
+      }
+
+      setDialogOpen(false);
+      setFormData({});
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      console.error('Save error:', error);
+      setError('İşlem sırasında hata oluştu');
+      setTimeout(() => setError(null), 3000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSyncWithERP = () => {
@@ -669,69 +719,13 @@ const Customers: React.FC = () => {
               fullWidth
               label="Adres"
               multiline
-              rows={2}
-              value={formData.address?.street || ''}
+              rows={3}
+              value={formData.address || ''}
               onChange={(e) => setFormData({
                 ...formData, 
-                address: {
-                  street: e.target.value,
-                  city: formData.address?.city || '',
-                  state: formData.address?.state || '',
-                  postalCode: formData.address?.postalCode || '',
-                  country: formData.address?.country || 'Türkiye'
-                }
+                address: e.target.value
               })}
             />
-
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 2 }}>
-              <TextField
-                fullWidth
-                label="Şehir"
-                value={formData.address?.city || ''}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  address: {
-                    street: formData.address?.street || '',
-                    city: e.target.value,
-                    state: formData.address?.state || '',
-                    postalCode: formData.address?.postalCode || '',
-                    country: formData.address?.country || 'Türkiye'
-                  }
-                })}
-              />
-
-              <TextField
-                fullWidth
-                label="İl"
-                value={formData.address?.state || ''}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  address: {
-                    street: formData.address?.street || '',
-                    city: formData.address?.city || '',
-                    state: e.target.value,
-                    postalCode: formData.address?.postalCode || '',
-                    country: formData.address?.country || 'Türkiye'
-                  }
-                })}
-              />
-
-              <TextField
-                fullWidth
-                label="Posta Kodu"
-                value={formData.address?.postalCode || ''}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  address: {
-                    street: formData.address?.street || '',
-                    city: formData.address?.city || '',
-                    state: formData.address?.state || '',
-                    postalCode: e.target.value,
-                    country: formData.address?.country || 'Türkiye'
-                  }
-                })}
-              />
-            </Box>
 
             {/* İş Bilgileri */}
             <Typography variant="h6" sx={{ 
