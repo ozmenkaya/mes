@@ -25,10 +25,32 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if running as root
+# Check if running as root (allow both root and non-root)
 if [[ $EUID -eq 0 ]]; then
-   print_error "Bu script root kullanıcısı ile çalıştırılmamalıdır!"
-   exit 1
+   print_warning "Root kullanıcısı ile çalışıyorsunuz. Güvenlik için normal kullanıcı önerilir."
+   
+   # Create a deployment user if running as root
+   DEPLOY_USER="mesuser"
+   if ! id "$DEPLOY_USER" &>/dev/null; then
+       print_status "Deployment kullanıcısı oluşturuluyor..."
+       useradd -m -s /bin/bash $DEPLOY_USER
+       usermod -aG sudo $DEPLOY_USER
+       
+       # Set up SSH for the new user
+       mkdir -p /home/$DEPLOY_USER/.ssh
+       cp /root/.ssh/authorized_keys /home/$DEPLOY_USER/.ssh/ 2>/dev/null || true
+       chown -R $DEPLOY_USER:$DEPLOY_USER /home/$DEPLOY_USER/.ssh
+       chmod 700 /home/$DEPLOY_USER/.ssh
+       chmod 600 /home/$DEPLOY_USER/.ssh/authorized_keys
+   fi
+   
+   # Switch to deployment user for the rest of the script
+   print_status "Deployment kullanıcısına geçiliyor..."
+   cp "$0" /tmp/deploy-temp.sh
+   chmod +x /tmp/deploy-temp.sh
+   sudo -u $DEPLOY_USER /tmp/deploy-temp.sh
+   rm /tmp/deploy-temp.sh
+   exit $?
 fi
 
 # Update system
