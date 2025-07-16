@@ -97,7 +97,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
     working_dir: /app
-    command: node scripts/webhook-server.js
+    command: node scripts/webhook-server.cjs
     restart: unless-stopped
     profiles:
       - webhook
