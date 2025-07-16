@@ -1,0 +1,27 @@
+[Unit]
+Description=MES Auto-Deploy Webhook Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/mes
+ExecStart=/usr/bin/node /root/mes/scripts/webhook-server.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=9000
+
+# Security
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/root/mes /var/log /tmp
+
+[Install]
+WantedBy=multi-user.target

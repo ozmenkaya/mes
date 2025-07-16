@@ -81,6 +81,22 @@ services:
     profiles:
       - production
 
+  # Webhook Server (Optional - for auto-deployment)
+  webhook-server:
+    image: node:18-alpine
+    container_name: mes-webhook
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    working_dir: /app
+    command: node scripts/webhook-server.js
+    restart: unless-stopped
+    profiles:
+      - webhook
+
 # Volumes for persistent data
 volumes:
   mes_db_data:

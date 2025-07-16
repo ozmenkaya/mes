@@ -33,6 +33,14 @@ Modern, responsive ve kullanıcı dostu üretim yönetim sistemi.
 - **Development**: Continuous data persistence during development cycles
 - **Production Ready**: ACID compliance and reliability
 
+## 🔄 Auto-Deployment System
+
+- **GitHub Webhooks**: Automatic deployment on push to main branch
+- **Zero Downtime**: Rolling updates with database backup
+- **Real-time Logs**: Deployment monitoring and logging
+- **Manual Override**: Manual deployment capability
+- **Rollback Support**: Automatic database backups before each deploy
+
 ## 🚀 Kurulum
 
 ### Gereksinimler
