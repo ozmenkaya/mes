@@ -89,8 +89,8 @@ function Dashboard() {
         >
           Üretim Kontrol Paneli
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
-          Fabrika performansını gerçek zamanlı izleyin
+        <Typography variant="h6" color="text.secondary">
+          Fabrika performansını gerçek zamanlı izleyin ve yönetin
         </Typography>
       </Box>
 

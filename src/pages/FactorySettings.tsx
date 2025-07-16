@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   Card,
   CardContent,
+  Chip,
+  Button,
+  CircularProgress,
   List,
   ListItem,
   ListItemButton,
@@ -19,14 +22,44 @@ import {
   LocationOn as LocationIcon,
   Schedule as ShiftIcon,
   Security as SecurityIcon,
+  AccessTime as WorkingHoursIcon,
+  CalendarMonth as CalendarIcon,
+  Build as MaintenanceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { workingHoursApi } from '../services/api';
+import type { WorkingHours } from '../types';
 
 const FactorySettings: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedSetting, setSelectedSetting] = useState<string>('departments');
+  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedSetting, setSelectedSetting] = useState<string>('working-hours');
+
+  useEffect(() => {
+    fetchWorkingHoursData();
+  }, []);
+
+  const fetchWorkingHoursData = async () => {
+    try {
+      setLoading(true);
+      const data = await workingHoursApi.get();
+      setWorkingHours(data);
+    } catch (error) {
+      console.error('Çalışma saatleri verisi alınamadı:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const settingsMenuItems = [
+    {
+      id: 'working-hours',
+      text: 'Çalışma Saatleri',
+      icon: <WorkingHoursIcon />,
+      description: 'Fabrika çalışma saatleri ve tatil günleri',
+      path: '/factory-settings/working-hours'
+    },
     {
       id: 'departments',
       text: 'Departmanlar',
@@ -75,6 +108,94 @@ const FactorySettings: React.FC = () => {
     setSelectedSetting(settingId);
     navigate(path);
   };
+
+  const renderWorkingHoursContent = () => (
+    <Box>
+      <Typography variant="body1" sx={{ mb: 3 }}>
+        Fabrika çalışma saatleri, tatil günleri ve bakım zamanlarını yönetin.
+      </Typography>
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : workingHours ? (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            Mevcut Çalışma Durumu
+          </Typography>
+          
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            <Chip 
+              icon={<CalendarIcon />}
+              label={`${(workingHours.holidays || []).length} Tatil Günü`}
+              color="primary"
+              variant="outlined"
+            />
+            <Chip 
+              icon={<MaintenanceIcon />}
+              label={`${(workingHours.maintenanceWindows || []).length} Bakım Zamanı`}
+              color="warning"
+              variant="outlined"
+            />
+          </Box>
+
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 1, mb: 3 }}>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              <strong>Haftalık Çalışma:</strong> {workingHours.effectiveHours?.weeklyHours || 0} saat
+            </Typography>
+            <Typography variant="body2">
+              <strong>Günlük Çalışma:</strong> {workingHours.effectiveHours?.dailyHours || 0} saat
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ p: 2, backgroundColor: 'error.light', borderRadius: 1, mb: 3 }}>
+          <Typography variant="body2" color="error.contrastText">
+            Çalışma saatleri verisi yüklenemedi
+          </Typography>
+        </Box>
+      )}
+
+      <Box sx={{ p: 2, backgroundColor: 'primary.light', borderRadius: 1, mb: 3 }}>
+        <Typography variant="body2" color="primary.contrastText" sx={{ mb: 2 }}>
+          💡 Çalışma zamanları özellikleri:
+        </Typography>
+        <Typography variant="body2" color="primary.contrastText">
+          • Haftalık çalışma saatleri ve vardiya tanımları<br/>
+          • Tatil günleri ve özel günler (tarih aralığı desteği)<br/>
+          • Yarım gün tatil ve saat bazlı tatil tanımları<br/>
+          • Bakım zamanları ve planlı duruşlar<br/>
+          • Kapasite planlama desteği
+        </Typography>
+      </Box>
+
+      <Button 
+        variant="contained" 
+        onClick={() => navigate('/factory-settings/working-hours')}
+        startIcon={<WorkingHoursIcon />}
+        size="large"
+        sx={{ px: 4 }}
+      >
+        Çalışma Saatlerini Yönet
+      </Button>
+    </Box>
+  );
+
+  const renderDefaultContent = (setting: any) => (
+    <Box>
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        {setting?.description}
+      </Typography>
+      <Button 
+        variant="outlined" 
+        onClick={() => navigate(setting?.path)}
+        startIcon={setting?.icon}
+      >
+        {setting?.text} Ayarlarına Git
+      </Button>
+    </Box>
+  );
 
   return (
     <Box>
@@ -140,64 +261,9 @@ const FactorySettings: React.FC = () => {
                 {settingsMenuItems.find(item => item.id === selectedSetting)?.text}
               </Typography>
               
-              {selectedSetting === 'departments' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Bu bölümde fabrikadaki departmanları tanımlayabilir ve yönetebilirsiniz.
-                  </Typography>
-                  <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      💡 Departman özelliklerini tanımlayın:
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      • Departman adı ve kodu<br/>
-                      • Sorumlu kişiler<br/>
-                      • Lokasyon bilgileri<br/>
-                      • Üretim kapasitesi<br/>
-                      • Çalışma vardiyaları
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
-
-              {selectedSetting === 'users' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Sistem kullanıcılarını ve yetkilerini yönetin.
-                  </Typography>
-                </Box>
-              )}
-
-              {selectedSetting === 'shifts' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Fabrika çalışma vardiyalarını tanımlayın.
-                  </Typography>
-                </Box>
-              )}
-
-              {selectedSetting === 'locations' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Fabrika içi lokasyonları ve çalışma alanlarını yönetin.
-                  </Typography>
-                </Box>
-              )}
-
-              {selectedSetting === 'general' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Sistem genel ayarlarını yapılandırın.
-                  </Typography>
-                </Box>
-              )}
-
-              {selectedSetting === 'security' && (
-                <Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Sistem güvenlik politikalarını ayarlayın.
-                  </Typography>
-                </Box>
+              {selectedSetting === 'working-hours' && renderWorkingHoursContent()}
+              {selectedSetting !== 'working-hours' && renderDefaultContent(
+                settingsMenuItems.find(item => item.id === selectedSetting)
               )}
             </CardContent>
           </Card>

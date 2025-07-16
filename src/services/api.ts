@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Machine } from '../types';
+import type { Machine, WorkingHours, Holiday, MaintenanceWindow } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -92,6 +92,57 @@ export const authApi = {
 
   me: async () => {
     const response = await api.get('/auth/me');
+    return response.data;
+  },
+};
+
+// Working Hours API calls
+export const workingHoursApi = {
+  // Get working hours
+  get: async (): Promise<WorkingHours> => {
+    const response = await api.get('/working-hours');
+    return response.data;
+  },
+
+  // Update working hours
+  update: async (data: Partial<WorkingHours>): Promise<{ message: string; data: WorkingHours }> => {
+    const response = await api.put('/working-hours', data);
+    return response.data;
+  },
+
+  // Get holidays
+  getHolidays: async (): Promise<Holiday[]> => {
+    const response = await api.get('/working-hours/holidays');
+    return response.data;
+  },
+
+  // Add holiday
+  addHoliday: async (holiday: Omit<Holiday, 'id'>): Promise<{ message: string; holiday: Holiday }> => {
+    const response = await api.post('/working-hours/holidays', holiday);
+    return response.data;
+  },
+
+  // Delete holiday
+  deleteHoliday: async (date: string): Promise<{ message: string }> => {
+    const response = await api.delete(`/working-hours/holidays/${date}`);
+    return response.data;
+  },
+
+  // Get maintenance windows
+  getMaintenanceWindows: async (): Promise<MaintenanceWindow[]> => {
+    const response = await api.get('/working-hours/maintenance');
+    return response.data;
+  },
+
+  // Add maintenance window
+  addMaintenance: async (maintenance: Omit<MaintenanceWindow, 'id'>): Promise<{ message: string; maintenance: MaintenanceWindow }> => {
+    const response = await api.post('/working-hours/maintenance', maintenance);
+    return response.data;
+  },
+
+  // Delete maintenance window
+  deleteMaintenance: async (startDate: string): Promise<{ message: string }> => {
+    const response = await api.delete(`/working-hours/maintenance/${startDate}`);
     return response.data;
   },
 };

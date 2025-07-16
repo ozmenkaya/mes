@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  mes-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: mes-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { host: 'localhost', port: 3001, path: '/api/working-hours', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Service
+  mes-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mes-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - mes-backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: mes-proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - mes-frontend
+      - mes-backend
+    restart: unless-stopped
+    profiles:
+      - production

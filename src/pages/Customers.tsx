@@ -1,0 +1,789 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tabs,
+  Tab,
+  Alert,
+  CircularProgress,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Business as BusinessIcon,
+  Sync as SyncIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+} from '@mui/icons-material';
+
+interface Customer {
+  id: string;
+  type: 'customer' | 'supplier' | 'both';
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  taxNumber: string;
+  paymentTerms: string;
+  creditLimit?: number;
+  category: string;
+  status: 'active' | 'inactive' | 'suspended';
+  erpId?: string;
+  crmId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const Customers: React.FC = () => {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [formData, setFormData] = useState<Partial<Customer>>({});
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Mock data - gerçek uygulamada API'den gelecek
+  const mockCustomers: Customer[] = [
+    {
+      id: '1',
+      type: 'customer',
+      companyName: 'ABC Tekstil Ltd.',
+      contactPerson: 'Mehmet Özkan',
+      email: 'mehmet@abctekstil.com',
+      phone: '+90 212 555 0101',
+      address: {
+        street: 'Atatürk Cad. No:123',
+        city: 'İstanbul',
+        state: 'İstanbul',
+        postalCode: '34000',
+        country: 'Türkiye'
+      },
+      taxNumber: '1234567890',
+      paymentTerms: '30 gün',
+      creditLimit: 100000,
+      category: 'Tekstil',
+      status: 'active',
+      erpId: 'ERP-001',
+      notes: 'Ana müşterimiz',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15'
+    },
+    {
+      id: '2',
+      type: 'supplier',
+      companyName: 'XYZ Makine Sanayi',
+      contactPerson: 'Ayşe Kara',
+      email: 'ayse@xyzmakine.com',
+      phone: '+90 312 555 0202',
+      address: {
+        street: 'Sanayi Sitesi 5. Blok',
+        city: 'Ankara',
+        state: 'Ankara',
+        postalCode: '06000',
+        country: 'Türkiye'
+      },
+      taxNumber: '0987654321',
+      paymentTerms: '15 gün',
+      category: 'Makine',
+      status: 'active',
+      crmId: 'CRM-002',
+      notes: 'Kaliteli tedarikçi',
+      createdAt: '2024-01-20',
+      updatedAt: '2024-01-20'
+    }
+  ];
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      // Mock API call
+      setTimeout(() => {
+        setCustomers(mockCustomers);
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      setError('Firma verileri yüklenirken hata oluştu');
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const handleAddCustomer = () => {
+    setEditingCustomer(null);
+    setFormData({
+      type: 'customer',
+      status: 'active',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: 'Türkiye'
+      }
+    });
+    setDialogOpen(true);
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setFormData(customer);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    if (window.confirm('Bu firmayı silmek istediğinizden emin misiniz?')) {
+      setCustomers(customers.filter(c => c.id !== id));
+      setSuccess('Firma başarıyla silindi');
+      setTimeout(() => setSuccess(null), 3000);
+    }
+  };
+
+  const handleSaveCustomer = () => {
+    if (!formData.companyName || !formData.contactPerson || !formData.email) {
+      setError('Zorunlu alanları doldurun');
+      return;
+    }
+
+    const now = new Date().toISOString().split('T')[0];
+    
+    if (editingCustomer) {
+      const updatedCustomers = customers.map(c => 
+        c.id === editingCustomer.id 
+          ? { ...formData, id: editingCustomer.id, updatedAt: now } as Customer
+          : c
+      );
+      setCustomers(updatedCustomers);
+      setSuccess('Firma başarıyla güncellendi');
+    } else {
+      const newCustomer: Customer = {
+        ...formData,
+        id: Date.now().toString(),
+        createdAt: now,
+        updatedAt: now,
+      } as Customer;
+      setCustomers([...customers, newCustomer]);
+      setSuccess('Firma başarıyla eklendi');
+    }
+
+    setDialogOpen(false);
+    setFormData({});
+    setTimeout(() => setSuccess(null), 3000);
+  };
+
+  const handleSyncWithERP = () => {
+    setSyncDialogOpen(true);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'success';
+      case 'inactive': return 'default';
+      case 'suspended': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'customer': return 'primary';
+      case 'supplier': return 'secondary';
+      case 'both': return 'info';
+      default: return 'default';
+    }
+  };
+
+  const filteredCustomers = customers.filter(customer => {
+    if (tabValue === 0) return true; // Tümü
+    if (tabValue === 1) return customer.type === 'customer' || customer.type === 'both';
+    if (tabValue === 2) return customer.type === 'supplier' || customer.type === 'both';
+    return true;
+  });
+
+  return (
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' }, 
+        mb: 3,
+        gap: { xs: 2, sm: 0 }
+      }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 'bold',
+            fontSize: { xs: '1.75rem', sm: '2.125rem' }
+          }}
+        >
+          Müşteri ve Tedarikçi Yönetimi
+        </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 1,
+          flexDirection: { xs: 'column', sm: 'row' },
+          width: { xs: '100%', sm: 'auto' }
+        }}>
+          <Button
+            variant="outlined"
+            startIcon={<SyncIcon />}
+            onClick={handleSyncWithERP}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: 'auto' }
+            }}
+          >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              ERP Senkronizasyonu
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              ERP Sync
+            </Box>
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddCustomer}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: 'auto' }
+            }}
+          >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              Yeni Firma Ekle
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              Yeni Ekle
+            </Box>
+          </Button>
+        </Box>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
+
+      <Card>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange} 
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{ 
+              mb: 2,
+              '& .MuiTab-root': {
+                minWidth: { xs: 0, sm: 'auto' },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                padding: { xs: '6px 8px', sm: '12px 16px' }
+              },
+              '& .MuiTabs-scrollButtons': {
+                display: { xs: 'flex', sm: 'none' }
+              }
+            }}
+          >
+            <Tab label="Tümü" />
+            <Tab label="Müşteriler" />
+            <Tab label="Tedarikçiler" />
+          </Tabs>
+
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+              <Table sx={{ minWidth: { xs: 300, sm: 650 } }}>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Firma Adı</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', sm: 'table-cell' } }}>Tür</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>İletişim Kişisi</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', lg: 'table-cell' } }}>Telefon</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>Kategori</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', sm: 'table-cell' } }}>Durum</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>İşlemler</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredCustomers.map((customer) => (
+                    <TableRow key={customer.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <BusinessIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {customer.companyName}
+                            </Typography>
+                            {/* Mobilde tip ve durum bilgisini firma adı altında göster */}
+                            <Box sx={{ display: { xs: 'flex', sm: 'none' }, gap: 0.5, mt: 0.5 }}>
+                              <Chip
+                                label={
+                                  customer.type === 'customer' ? 'Müşteri' :
+                                  customer.type === 'supplier' ? 'Tedarikçi' : 'İkisi de'
+                                }
+                                color={getTypeColor(customer.type)}
+                                size="small"
+                              />
+                              <Chip
+                                label={
+                                  customer.status === 'active' ? 'Aktif' :
+                                  customer.status === 'inactive' ? 'Pasif' : 'Askıda'
+                                }
+                                color={getStatusColor(customer.status)}
+                                size="small"
+                              />
+                            </Box>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        <Chip
+                          label={
+                            customer.type === 'customer' ? 'Müşteri' :
+                            customer.type === 'supplier' ? 'Tedarikçi' : 'İkisi de'
+                          }
+                          color={getTypeColor(customer.type)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{customer.contactPerson}</TableCell>
+                      <TableCell>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                            wordBreak: 'break-all'
+                          }}
+                        >
+                          {customer.email}
+                        </Typography>
+                        {/* Mobilde telefon numarasını email altında göster */}
+                        <Typography 
+                          variant="caption" 
+                          color="text.secondary"
+                          sx={{ display: { xs: 'block', lg: 'none' } }}
+                        >
+                          {customer.phone}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{customer.phone}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{customer.category}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        <Chip
+                          label={
+                            customer.status === 'active' ? 'Aktif' :
+                            customer.status === 'inactive' ? 'Pasif' : 'Askıda'
+                          }
+                          color={getStatusColor(customer.status)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton
+                            color="primary"
+                            onClick={() => handleEditCustomer(customer)}
+                            size="small"
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDeleteCustomer(customer.id)}
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredCustomers.length === 0 && (
+                    <TableRow>
+                      <TableCell 
+                        colSpan={8} 
+                        sx={{ 
+                          textAlign: 'center', 
+                          py: { xs: 3, sm: 6 },
+                          color: 'text.secondary'
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                          <BusinessIcon sx={{ fontSize: { xs: 40, sm: 60 }, opacity: 0.3 }} />
+                          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                            Henüz firma eklenmemiş
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                            Yeni firma eklemek için "Yeni Firma Ekle" butonunu kullanın
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Firma Ekleme/Düzenleme Dialog */}
+      <Dialog 
+        open={dialogOpen} 
+        onClose={() => setDialogOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            margin: { xs: 1, sm: 2 },
+            width: { xs: 'calc(100% - 16px)', sm: '100%' },
+            height: { xs: 'calc(100% - 64px)', sm: 'auto' },
+            maxHeight: { xs: 'calc(100% - 64px)', sm: '90vh' }
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontSize: { xs: '1.25rem', sm: '1.5rem' },
+          py: { xs: 2, sm: 3 }
+        }}>
+          {editingCustomer ? 'Firma Düzenle' : 'Yeni Firma Ekle'}
+        </DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, sm: 3 } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, sm: 3 }, mt: 1 }}>
+            {/* Temel Bilgiler */}
+            <Typography variant="h6" sx={{ 
+              color: 'primary.main',
+              fontSize: { xs: '1rem', sm: '1.25rem' }
+            }}>
+              Temel Bilgiler
+            </Typography>
+            
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>Firma Türü</InputLabel>
+                <Select
+                  value={formData.type || ''}
+                  onChange={(e) => setFormData({...formData, type: e.target.value as any})}
+                  label="Firma Türü"
+                >
+                  <MenuItem value="customer">Müşteri</MenuItem>
+                  <MenuItem value="supplier">Tedarikçi</MenuItem>
+                  <MenuItem value="both">İkisi de</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
+                fullWidth
+                label="Firma Adı"
+                value={formData.companyName || ''}
+                onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                required
+              />
+
+              <TextField
+                fullWidth
+                label="İletişim Kişisi"
+                value={formData.contactPerson || ''}
+                onChange={(e) => setFormData({...formData, contactPerson: e.target.value})}
+                required
+              />
+
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={formData.email || ''}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+              />
+
+              <TextField
+                fullWidth
+                label="Telefon"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
+
+              <TextField
+                fullWidth
+                label="Vergi Numarası"
+                value={formData.taxNumber || ''}
+                onChange={(e) => setFormData({...formData, taxNumber: e.target.value})}
+              />
+            </Box>
+
+            {/* Adres Bilgileri */}
+            <Typography variant="h6" sx={{ 
+              color: 'primary.main',
+              fontSize: { xs: '1rem', sm: '1.25rem' }
+            }}>
+              Adres Bilgileri
+            </Typography>
+
+            <TextField
+              fullWidth
+              label="Adres"
+              multiline
+              rows={2}
+              value={formData.address?.street || ''}
+              onChange={(e) => setFormData({
+                ...formData, 
+                address: {
+                  street: e.target.value,
+                  city: formData.address?.city || '',
+                  state: formData.address?.state || '',
+                  postalCode: formData.address?.postalCode || '',
+                  country: formData.address?.country || 'Türkiye'
+                }
+              })}
+            />
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 2 }}>
+              <TextField
+                fullWidth
+                label="Şehir"
+                value={formData.address?.city || ''}
+                onChange={(e) => setFormData({
+                  ...formData, 
+                  address: {
+                    street: formData.address?.street || '',
+                    city: e.target.value,
+                    state: formData.address?.state || '',
+                    postalCode: formData.address?.postalCode || '',
+                    country: formData.address?.country || 'Türkiye'
+                  }
+                })}
+              />
+
+              <TextField
+                fullWidth
+                label="İl"
+                value={formData.address?.state || ''}
+                onChange={(e) => setFormData({
+                  ...formData, 
+                  address: {
+                    street: formData.address?.street || '',
+                    city: formData.address?.city || '',
+                    state: e.target.value,
+                    postalCode: formData.address?.postalCode || '',
+                    country: formData.address?.country || 'Türkiye'
+                  }
+                })}
+              />
+
+              <TextField
+                fullWidth
+                label="Posta Kodu"
+                value={formData.address?.postalCode || ''}
+                onChange={(e) => setFormData({
+                  ...formData, 
+                  address: {
+                    street: formData.address?.street || '',
+                    city: formData.address?.city || '',
+                    state: formData.address?.state || '',
+                    postalCode: e.target.value,
+                    country: formData.address?.country || 'Türkiye'
+                  }
+                })}
+              />
+            </Box>
+
+            {/* İş Bilgileri */}
+            <Typography variant="h6" sx={{ 
+              color: 'primary.main',
+              fontSize: { xs: '1rem', sm: '1.25rem' }
+            }}>
+              İş Bilgileri
+            </Typography>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+              <TextField
+                fullWidth
+                label="Kategori"
+                value={formData.category || ''}
+                onChange={(e) => setFormData({...formData, category: e.target.value})}
+              />
+
+              <TextField
+                fullWidth
+                label="Ödeme Vadesi"
+                value={formData.paymentTerms || ''}
+                onChange={(e) => setFormData({...formData, paymentTerms: e.target.value})}
+              />
+
+              <TextField
+                fullWidth
+                label="Kredi Limiti"
+                type="number"
+                value={formData.creditLimit || ''}
+                onChange={(e) => setFormData({...formData, creditLimit: Number(e.target.value)})}
+              />
+
+              <FormControl fullWidth>
+                <InputLabel>Durum</InputLabel>
+                <Select
+                  value={formData.status || 'active'}
+                  onChange={(e) => setFormData({...formData, status: e.target.value as any})}
+                  label="Durum"
+                >
+                  <MenuItem value="active">Aktif</MenuItem>
+                  <MenuItem value="inactive">Pasif</MenuItem>
+                  <MenuItem value="suspended">Askıda</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Notlar"
+              multiline
+              rows={3}
+              value={formData.notes || ''}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ 
+          px: { xs: 2, sm: 3 }, 
+          py: { xs: 2, sm: 3 },
+          gap: { xs: 1, sm: 0 },
+          flexDirection: { xs: 'column', sm: 'row' }
+        }}>
+          <Button 
+            onClick={() => setDialogOpen(false)}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              order: { xs: 2, sm: 1 }
+            }}
+          >
+            İptal
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveCustomer}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              order: { xs: 1, sm: 2 }
+            }}
+          >
+            {editingCustomer ? 'Güncelle' : 'Ekle'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ERP Senkronizasyon Dialog */}
+      <Dialog 
+        open={syncDialogOpen} 
+        onClose={() => setSyncDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            margin: { xs: 1, sm: 2 },
+            width: { xs: 'calc(100% - 16px)', sm: '100%' }
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontSize: { xs: '1.25rem', sm: '1.5rem' },
+          py: { xs: 2, sm: 3 }
+        }}>
+          ERP/CRM Senkronizasyonu
+        </DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, sm: 3 } }}>
+          <Typography variant="body1" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+            Müşteri ve tedarikçi verilerini ERP/CRM sistemlerinden senkronize edin.
+          </Typography>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, sm: 2 } }}>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              fullWidth
+            >
+              ERP'den Verileri İçe Aktar
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<UploadIcon />}
+              fullWidth
+            >
+              CRM'e Verileri Gönder
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<SyncIcon />}
+              fullWidth
+            >
+              Otomatik Senkronizasyon Başlat
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ 
+          px: { xs: 2, sm: 3 }, 
+          py: { xs: 2, sm: 3 }
+        }}>
+          <Button 
+            onClick={() => setSyncDialogOpen(false)}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
+          >
+            Kapat
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Customers;

@@ -221,7 +221,7 @@ const Machines: React.FC = () => {
           Makina Yönetimi
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Fabrika makinalarını yönetin, durumlarını izleyin ve bakım planlaması yapın
+          Fabrika makinalarını yönetin, durumlarını izleyin ve bakım planlaması yapın ({machines.length} makina)
         </Typography>
       </Box>
 
@@ -425,7 +425,7 @@ const Machines: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {machine.departments.map((dept, index) => (
+                        {(machine.departments || []).map((dept, index) => (
                           <Chip 
                             key={index}
                             label={dept} 
@@ -438,7 +438,7 @@ const Machines: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {machine.assignedPersonnel.slice(0, 2).map((person, index) => (
+                        {(machine.assignedPersonnel || []).slice(0, 2).map((person, index) => (
                           <Chip 
                             key={index}
                             label={person} 
@@ -447,7 +447,7 @@ const Machines: React.FC = () => {
                             color="secondary"
                           />
                         ))}
-                        {machine.assignedPersonnel.length > 2 && (
+                        {(machine.assignedPersonnel || []).length > 2 && (
                           <Chip 
                             label={`+${machine.assignedPersonnel.length - 2}`} 
                             size="small"
@@ -492,15 +492,15 @@ const Machines: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {machine.maintenanceSchedule.lastMaintenanceDate || 'Belirtilmemiş'}
+                        {machine.lastMaintenanceDate || 'Belirtilmemiş'}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box>
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {machine.maintenanceSchedule.nextMaintenanceDate || 'Planlanmamış'}
+                          {machine.nextMaintenanceDate || 'Planlanmamış'}
                         </Typography>
-                        {machine.maintenanceSchedule.responsibleTechnician && (
+                        {machine.maintenanceSchedule?.responsibleTechnician && (
                           <Typography variant="caption" color="text.secondary">
                             Sorumlu: {machine.maintenanceSchedule.responsibleTechnician}
                           </Typography>

@@ -206,20 +206,26 @@ export interface Machine {
   id: string;
   code: string;
   name: string;
+  type?: string;
   manufacturer: string;
   model: string;
+  serialNumber?: string;
   location: string;
   departments: string[]; // Multiple departments
   assignedPersonnel: string[]; // Multiple personnel
-  status: 'operational' | 'maintenance' | 'breakdown' | 'idle';
+  status: 'operational' | 'maintenance' | 'breakdown' | 'idle' | 'running';
   capacity: number;
   efficiency: number;
-  utilization: number;
+  utilization?: number;
+  operatingHours?: number;
+  maintenanceHours?: number;
   installationDate: string;
-  isActive: boolean;
+  lastMaintenanceDate?: string;
+  nextMaintenanceDate?: string;
+  isActive?: boolean;
   notes?: string;
-  // Maintenance properties
-  maintenanceSchedule: {
+  // Maintenance properties (optional for backward compatibility)
+  maintenanceSchedule?: {
     lastMaintenanceDate?: string;
     nextMaintenanceDate?: string;
     maintenanceInterval: number; // days
@@ -227,14 +233,74 @@ export interface Machine {
     responsibleTechnician?: string;
     maintenanceNotes?: string;
   };
-  // Performance tracking
-  performanceHistory: {
+  // Performance tracking (optional)
+  performanceHistory?: {
     date: string;
     efficiency: number;
     utilization: number;
     downtimeMinutes: number;
     maintenanceMinutes: number;
   }[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Working Hours interfaces
+export interface WorkShift {
+  start: string; // HH:MM format
+  end: string; // HH:MM format
+  name: string;
+}
+
+export interface DaySchedule {
+  isWorkingDay: boolean;
+  shifts: WorkShift[];
+}
+
+export interface WeeklySchedule {
+  monday: DaySchedule;
+  tuesday: DaySchedule;
+  wednesday: DaySchedule;
+  thursday: DaySchedule;
+  friday: DaySchedule;
+  saturday: DaySchedule;
+  sunday: DaySchedule;
+}
+
+export interface Holiday {
+  date?: string; // YYYY-MM-DD format (single date for backwards compatibility)
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+  startTime?: string; // HH:MM format (optional for partial day holidays)
+  endTime?: string; // HH:MM format (optional for partial day holidays)
+  name: string;
+  type: 'national' | 'religious' | 'company';
+  isFullDay?: boolean; // true for all-day holidays, false for partial day
+}
+
+export interface MaintenanceWindow {
+  startDate: string; // YYYY-MM-DD format
+  endDate: string; // YYYY-MM-DD format
+  name: string;
+  description?: string;
+  type: 'annual' | 'seasonal' | 'emergency' | 'planned';
+}
+
+export interface EffectiveHours {
+  dailyHours: number;
+  weeklyHours: number;
+  monthlyHours: number;
+  yearlyHours: number;
+}
+
+export interface WorkingHours {
+  id: string;
+  factoryName: string;
+  timezone: string;
+  weeklySchedule: WeeklySchedule;
+  holidays: Holiday[];
+  maintenanceWindows: MaintenanceWindow[];
+  effectiveHours: EffectiveHours;
   createdAt: string;
   updatedAt: string;
 }

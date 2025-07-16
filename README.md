@@ -1,21 +1,22 @@
-# Üretim Yürütme Sistemi (ÜYS)
+# MES - Manufacturing Execution System (Üretim Yürütme Sistemi)
 
-Modern bir Manufacturing Execution System (Üretim Yürütme Sistemi) web uygulaması.
+Modern, responsive ve kullanıcı dostu üretim yönetim sistemi.
 
-## 🏭 Özellikler
+## 🚀 Özellikler
 
 ### Ana Modüller
-- **Dashboard**: Gerçek zamanlı üretim görünümü ve KPI'lar
-- **Work Order Management**: İş emri oluşturma, takip ve yönetimi
-- **Production Planning**: Üretim planlama ve çizelgeleme
-- **Quality Management**: Kalite kontrol, muayene ve uygunsuzluk yönetimi
-- **Inventory Management**: Hammadde, yarı mamul ve mamul stok takibi
-- **Equipment Management**: Ekipman, personel ve araç yönetimi
-- **Reports & Analytics**: Üretim raporları, verimlilik metrikleri ve analitik
+- **📊 Dashboard**: Gerçek zamanlı üretim görünümü ve KPI'lar
+- **👥 Müşteri & Tedarikçi Yönetimi**: Kapsamlı firma yönetimi ve ERP entegrasyonu
+- **⚙️ Fabrika Ayarları**: Çalışma saatleri, departmanlar, makine yönetimi
+- **📱 Responsive Tasarım**: Tüm cihazlarda mükemmel deneyim
+- **🔒 Güvenli**: Modern güvenlik standartları
+- **🎨 Modern UI**: Material-UI ile tasarlanmış
 
 ### Teknolojiler
 - **Frontend**: React 18 + TypeScript + Vite
 - **UI Framework**: Material-UI (MUI) v5
+- **Backend**: Node.js (Express alternative)
+- **Deployment**: Docker + Docker Compose
 - **State Management**: React Context API ve hooks
 - **Routing**: React Router v6
 - **Charts**: Recharts (gelecekte eklenecek)
@@ -45,6 +46,74 @@ Modern bir Manufacturing Execution System (Üretim Yürütme Sistemi) web uygula
    ```
    http://localhost:5173
    ```
+
+4. **Backend'i başlatın:**
+   ```bash
+   node simple-backend.cjs
+   ```
+
+## 🐳 Docker ile Deployment
+
+### Yerel Deployment
+
+```bash
+# Tüm servisleri Docker ile başlatın
+npm run deploy:local
+
+# Logları izleyin
+npm run docker:logs
+
+# Servisleri durdurun
+npm run docker:down
+```
+
+### DigitalOcean Production Deployment
+
+#### Gereksinimler
+- Ubuntu 20.04+ DigitalOcean Droplet (en az 2GB RAM)
+- SSH erişimi
+
+#### Deployment Adımları
+
+1. **Droplet'e bağlanın:**
+   ```bash
+   ssh root@your-server-ip
+   ```
+
+2. **Non-root kullanıcı oluşturun:**
+   ```bash
+   adduser mesuser
+   usermod -aG sudo mesuser
+   su - mesuser
+   ```
+
+3. **Repository'i klonlayın:**
+   ```bash
+   git clone <your-repo-url>
+   cd mes
+   ```
+
+4. **Deploy script'ini çalıştırın:**
+   ```bash
+   ./deploy.sh
+   ```
+
+Deploy script otomatik olarak:
+- ✅ Docker ve Docker Compose kurar
+- ✅ Firewall yapılandırır (portlar: 22, 80, 443, 3001)
+- ✅ Uygulamayı build eder
+- ✅ Servisleri başlatır (Frontend: port 80, Backend: port 3001)
+- ✅ Health check yapar
+
+#### Erişim
+- **Frontend**: `http://your-server-ip`
+- **Backend API**: `http://your-server-ip:3001`
+
+#### SSL Kurulumu (İsteğe bağlı)
+```bash
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+```
 
 ## 📁 Proje Yapısı
 

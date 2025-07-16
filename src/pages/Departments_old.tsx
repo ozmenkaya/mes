@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   IconButton,
   Dialog,
@@ -23,76 +22,161 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Switch,
+  FormControlLabel,
+  Divider,
+  CircularProgress,
+  Alert,
+  Avatar,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Business as DepartmentIcon,
+  People as PeopleIcon,
+  Assignment as TaskIcon,
+  TrendingUp as TrendingUpIcon,
+  LocationOn as LocationIcon,
 } from '@mui/icons-material';
+import { departmentApi } from '../services/api';
 
+// Departman yönetimi için arayüzler
 interface Department {
   id: string;
   code: string;
   name: string;
   manager: string;
   location: string;
-  employeeCount: number;
-  shift: string;
+  employeeCount?: number;
   status: 'active' | 'inactive';
   description?: string;
 }
 
-interface SystemUser {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  department: string;
-  isActive: boolean;
-}
-
 const Departments: React.FC = () => {
-  // Kullanıcılar listesi
-  const [users] = useState<SystemUser[]>([
-    {
-      id: '1',
-      username: 'admin',
-      firstName: 'Sistem',
-      lastName: 'Yöneticisi',
-      role: 'admin',
-      department: 'Bilgi İşlem',
-      isActive: true
-    },
-    {
-      id: '2',
-      username: 'ayilmaz',
-      firstName: 'Ahmet',
-      lastName: 'Yılmaz',
-      role: 'manager',
-      department: 'Ana Üretim',
-      isActive: true
-    },
-    {
-      id: '3',
-      username: 'ademir',
-      firstName: 'Ayşe',
-      lastName: 'Demir',
-      role: 'quality_inspector',
-      department: 'Kalite Kontrol',
-      isActive: true
-    },
-    {
-      id: '4',
-      username: 'mkaya',
-      firstName: 'Mehmet',
-      lastName: 'Kaya',
-      role: 'maintenance',
-      department: 'Bakım Onarım',
-      isActive: true
-    },
-    {
+  // States
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Department>>({});
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const departmentsData = await departmentApi.getAll();
+        
+        // Add mock employee counts and status
+        const departmentsWithStats = departmentsData.map((dept: any) => ({
+          ...dept,
+          employeeCount: Math.floor(Math.random() * 50) + 5,
+          status: Math.random() > 0.1 ? 'active' : 'inactive'
+        }));
+        
+        setDepartments(departmentsWithStats);
+      } catch (err) {
+        console.error('Error fetching departments:', err);
+        setError('Veriler yüklenirken hata oluştu. Backend sunucusu çalışıyor mu?');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getStatusColor = (status: Department['status']) => {
+    return status === 'active' ? 'success' : 'error';
+  };
+
+  const getStatusText = (status: Department['status']) => {
+    return status === 'active' ? 'Aktif' : 'Pasif';
+  };
+
+  const handleAddDepartment = () => {
+    setEditingDepartment(null);
+    setFormData({});
+    setOpen(true);
+  };
+
+  const handleEditDepartment = (department: Department) => {
+    setEditingDepartment(department);
+    setFormData(department);
+    setOpen(true);
+  };
+
+  const handleDeleteDepartment = async (id: string) => {
+    try {
+      setSubmitting(true);
+      // await departmentApi.delete(id);
+      setDepartments(departments.filter(dept => dept.id !== id));
+      setSuccessMessage('Departman başarıyla silindi');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Error deleting department:', err);
+      setError('Departman silinirken hata oluştu');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      if (editingDepartment) {
+        // Update existing department
+        setDepartments(departments.map(dept => 
+          dept.id === editingDepartment.id 
+            ? { ...dept, ...formData } 
+            : dept
+        ));
+        setSuccessMessage('Departman başarıyla güncellendi');
+      } else {
+        // Create new department
+        const newDepartment = {
+          id: (departments.length + 1).toString(),
+          ...formData,
+          employeeCount: 0,
+          status: 'active' as const
+        } as Department;
+        
+        setDepartments([...departments, newDepartment]);
+        setSuccessMessage('Departman başarıyla eklendi');
+      }
+
+      handleClose();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Error saving department:', err);
+      setError('Departman kaydedilirken hata oluştu');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEditingDepartment(null);
+    setFormData({});
+  };
+
+  const filteredDepartments = departments.filter(dept => {
+    const matchesSearch = dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dept.code.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || dept.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
       id: '5',
       username: 'fcanli',
       firstName: 'Fatma',
@@ -121,7 +205,7 @@ const Departments: React.FC = () => {
     }
   ]);
 
-  const [departments, setDepartments] = useState<Department[]>([
+  const [departments, setDepartments] = useState<DepartmentData[]>([
     {
       id: '1',
       code: 'PRD-001',
@@ -158,8 +242,8 @@ const Departments: React.FC = () => {
   ]);
 
   const [open, setOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
-  const [formData, setFormData] = useState<Partial<Department>>({
+  const [editingDepartment, setEditingDepartment] = useState<DepartmentData | null>(null);
+  const [formData, setFormData] = useState<Partial<DepartmentData>>({
     code: '',
     name: '',
     manager: '',
@@ -170,7 +254,7 @@ const Departments: React.FC = () => {
     description: ''
   });
 
-  const handleOpen = (department?: Department) => {
+  const handleOpen = (department?: DepartmentData) => {
     if (department) {
       setEditingDepartment(department);
       setFormData(department);
@@ -198,23 +282,23 @@ const Departments: React.FC = () => {
 
   const handleSave = () => {
     if (editingDepartment) {
+      // Güncelle
       setDepartments(departments.map(dept => 
-        dept.id === editingDepartment.id ? { ...formData, id: editingDepartment.id } as Department : dept
+        dept.id === editingDepartment.id ? { ...formData, id: editingDepartment.id } as DepartmentData : dept
       ));
     } else {
-      const newDepartment: Department = {
+      // Yeni ekle
+      const newDepartment: DepartmentData = {
         ...formData,
         id: Date.now().toString(),
-      } as Department;
+      } as DepartmentData;
       setDepartments([...departments, newDepartment]);
     }
     handleClose();
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Bu departmanı silmek istediğinizden emin misiniz?')) {
-      setDepartments(departments.filter(dept => dept.id !== id));
-    }
+    setDepartments(departments.filter(dept => dept.id !== id));
   };
 
   const getStatusColor = (status: string) => {
@@ -342,69 +426,147 @@ const Departments: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Departments Table */}
-      <Card>
-        <CardContent sx={{ p: 0 }}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Departman Kodu</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Departman Adı</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Sorumlu</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Lokasyon</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Çalışan Sayısı</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Vardiya</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Durum</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>İşlemler</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {departments.map((department) => (
-                  <TableRow key={department.id} hover>
-                    <TableCell>
-                      <Chip 
-                        label={department.code} 
-                        color="primary" 
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 'medium' }}>{department.name}</TableCell>
-                    <TableCell>{department.manager}</TableCell>
-                    <TableCell>{department.location}</TableCell>
-                    <TableCell>{department.employeeCount}</TableCell>
-                    <TableCell>{department.shift}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={getStatusText(department.status)} 
-                        color={getStatusColor(department.status) as any}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpen(department)}
-                        color="primary"
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDelete(department.id)}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+      {/* İstatistikler */}
+      <Box 
+        sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)'
+          },
+          gap: 3,
+          mb: 4
+        }}
+      >
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <DepartmentIcon sx={{ fontSize: 30, opacity: 0.9, mr: 1 }} />
+              <Typography variant="h6">Toplam Departman</Typography>
+            </Box>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
+              {departments.length}
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Toplam Çalışan</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
+              {departments.reduce((total, dept) => total + dept.employeeCount, 0)}
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+          color: 'white',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 'inherit',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
+            zIndex: 1,
+          }
+        }}>
+          <CardContent sx={{ position: 'relative', zIndex: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Aktif Departman</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700 }}>
+              {departments.filter(dept => dept.status === 'active').length}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+
+      {/* Departman Tablosu */}
+      <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: 'grey.50' }}>
+              <TableCell sx={{ fontWeight: 'bold' }}>Departman Kodu</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Departman Adı</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Sorumlu</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Lokasyon</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Çalışan Sayısı</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Vardiya</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Durum</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>İşlemler</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {departments.map((department) => (
+              <TableRow key={department.id} hover>
+                <TableCell>{department.code}</TableCell>
+                <TableCell sx={{ fontWeight: 'medium' }}>{department.name}</TableCell>
+                <TableCell>{department.manager}</TableCell>
+                <TableCell>{department.location}</TableCell>
+                <TableCell>{department.employeeCount}</TableCell>
+                <TableCell>{department.shift}</TableCell>
+                <TableCell>
+                  <Chip 
+                    label={getStatusText(department.status)} 
+                    color={getStatusColor(department.status) as any}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleOpen(department)}
+                    color="primary"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(department.id)}
+                    color="error"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {/* Departman Ekleme/Düzenleme Dialog */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>

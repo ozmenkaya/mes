@@ -1,0 +1,26 @@
+# Backend Dockerfile
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S mesuser -u 1001
+
+# Copy backend file
+COPY simple-backend.cjs ./
+
+# Change ownership
+RUN chown -R mesuser:nodejs /app
+USER mesuser
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "const http = require('http'); const options = { host: 'localhost', port: 3001, path: '/api/working-hours', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"
+
+# Start the application
+CMD ["node", "simple-backend.cjs"]

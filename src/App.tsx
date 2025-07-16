@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, Typography, Card, CardContent, Chip } from '@mui/material';
-import { Assignment, CheckCircle, Speed, People } from '@mui/icons-material';
+import { Assignment, CheckCircle, Speed, People, AccessTime } from '@mui/icons-material';
 import { mesTheme } from './theme';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
@@ -13,9 +13,14 @@ import Locations from './pages/Locations';
 import GeneralSettingsPage from './pages/GeneralSettings';
 import SecuritySettings from './pages/SecuritySettings';
 import Machines from './pages/Machines';
+import WorkingHours from './pages/WorkingHours';
+import Customers from './pages/Customers';
 
 // Dashboard component inline
-const Dashboard = () => (
+const Dashboard = () => {
+  const navigate = useNavigate();
+  
+  return (
   <Box sx={{ p: 3 }}>
     <Box sx={{ mb: 4 }}>
       <Typography 
@@ -101,6 +106,40 @@ const Dashboard = () => (
       </Card>
 
       <Card sx={{ 
+        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        color: 'white',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)',
+        }
+      }}
+      onClick={() => navigate('/customers')}
+      >
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <People sx={{ fontSize: 40 }} />
+            <Chip 
+              label="Yönet" 
+              size="small" 
+              sx={{ 
+                backgroundColor: 'rgba(255,255,255,0.2)', 
+                color: 'white',
+                fontWeight: 600 
+              }} 
+            />
+          </Box>
+          <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+            124
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.9 }}>
+            Müşteri & Tedarikçi
+          </Typography>
+        </CardContent>
+      </Card>
+
+      <Card sx={{ 
         background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
         color: 'white',
       }}>
@@ -153,7 +192,8 @@ const Dashboard = () => (
       </Card>
     </Box>
   </Box>
-);
+  );
+};
 
 // Diğer sayfa component'leri - placeholder'lar
 const WorkOrders = () => (
@@ -530,6 +570,49 @@ const FactorySettings = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Çalışma Saatleri */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%)',
+        border: '1px solid rgba(34, 197, 94, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(34, 197, 94, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/working-hours')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <AccessTime />
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Çalışma Saatleri
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fabrika çalışma saatleri, tatil günleri ve bakım zamanlarını yönetin.
+          </Typography>
+          <Chip 
+            label="Aktif Modül" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              color: '#22c55e',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
     </Box>
   </Box>
   );
@@ -554,6 +637,7 @@ const AppContent = () => {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/equipment" element={<Equipment />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/customers" element={<Customers />} />
           <Route path="/factory-settings" element={<FactorySettings />} />
           <Route path="/factory-settings/departments" element={<Departments />} />
           <Route path="/factory-settings/users" element={<Users />} />
@@ -562,6 +646,7 @@ const AppContent = () => {
           <Route path="/factory-settings/general" element={<GeneralSettingsPage />} />
           <Route path="/factory-settings/security" element={<SecuritySettings />} />
           <Route path="/factory-settings/machines" element={<Machines />} />
+          <Route path="/factory-settings/working-hours" element={<WorkingHours />} />
         </Routes>
       </Layout>
     </Router>

@@ -11,6 +11,7 @@ import departmentRoutes from './routes/departments';
 import personnelRoutes from './routes/personnel';
 import locationRoutes from './routes/locations';
 import authRoutes from './routes/auth';
+import workingHoursRoutes from './routes/workingHours';
 
 // Load environment variables
 dotenv.config();
@@ -22,7 +23,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5175',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5174',
   credentials: true
 }));
 app.use(morgan('combined'));
@@ -35,6 +36,28 @@ app.use('/api/machines', machineRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/personnel', personnelRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/working-hours', workingHoursRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'MES Backend API',
+    version: '1.0.0',
+    status: 'Running',
+    endpoints: {
+      health: '/health',
+      api: {
+        auth: '/api/auth',
+        machines: '/api/machines',
+        departments: '/api/departments',
+        personnel: '/api/personnel',
+        locations: '/api/locations',
+        workingHours: '/api/working-hours'
+      }
+    },
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Health check
 app.get('/health', (req, res) => {

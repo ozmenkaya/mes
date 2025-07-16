@@ -53,77 +53,50 @@ const Locations: React.FC = () => {
     {
       id: '2',
       code: 'FAB-A-K1',
-      name: 'Kat 1',
+      name: 'Fabrika A - Kat 1',
       type: 'floor',
-      parentLocation: '1',
       isActive: true,
-      description: 'Birinci kat',
+      description: 'Birinci kat üretim alanı',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-01 08:00'
     },
     {
       id: '3',
-      code: 'FAB-A-K1-URETIM',
-      name: 'Üretim Alanı',
-      type: 'area',
-      parentLocation: '2',
+      code: 'FAB-A-K2',
+      name: 'Fabrika A - Kat 2',
+      type: 'floor',
       isActive: true,
-      description: 'Ana üretim alanı',
+      description: 'İkinci kat kalite kontrol',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-01 08:00'
     },
     {
       id: '4',
-      code: 'FAB-A-K1-QC',
-      name: 'Kalite Kontrol Alanı',
+      code: 'URT-001',
+      name: 'Üretim Alanı 1',
       type: 'area',
-      parentLocation: '2',
       isActive: true,
-      description: 'Kalite kontrol test alanı',
+      description: 'Ana üretim hattı alanı',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-01 08:00'
     },
     {
       id: '5',
-      code: 'WS-001',
-      name: 'İş İstasyonu 1',
+      code: 'MNT-001',
+      name: 'Montaj İstasyonu 1',
       type: 'workstation',
-      parentLocation: '3',
       isActive: true,
-      description: 'Montaj istasyonu',
+      description: 'Birinci montaj istasyonu',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-01 08:00'
     },
     {
       id: '6',
-      code: 'WS-002',
-      name: 'İş İstasyonu 2',
-      type: 'workstation',
-      parentLocation: '3',
-      isActive: true,
-      description: 'Test istasyonu',
-      createdAt: '2024-01-01 08:00',
-      updatedAt: '2024-01-01 08:00'
-    },
-    {
-      id: '7',
-      code: 'FAB-A-ZMN',
-      name: 'Zemin Kat',
-      type: 'floor',
-      parentLocation: '1',
-      isActive: true,
-      description: 'Zemin kat',
-      createdAt: '2024-01-01 08:00',
-      updatedAt: '2024-01-01 08:00'
-    },
-    {
-      id: '8',
-      code: 'FAB-A-ZMN-DEPO',
-      name: 'Depo Alanı',
+      code: 'DEPO-001',
+      name: 'Malzeme Deposu',
       type: 'area',
-      parentLocation: '7',
       isActive: true,
-      description: 'Ana depo alanı',
+      description: 'Hammadde ve malzeme deposu',
       createdAt: '2024-01-01 08:00',
       updatedAt: '2024-01-01 08:00'
     }
@@ -135,7 +108,6 @@ const Locations: React.FC = () => {
     code: '',
     name: '',
     type: 'area',
-    parentLocation: '',
     isActive: true,
     description: ''
   });
@@ -150,7 +122,6 @@ const Locations: React.FC = () => {
         code: '',
         name: '',
         type: 'area',
-        parentLocation: '',
         isActive: true,
         description: ''
       });
@@ -183,13 +154,6 @@ const Locations: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    // Alt lokasyonları kontrol et
-    const hasChildren = locations.some(loc => loc.parentLocation === id);
-    if (hasChildren) {
-      alert('Bu lokasyonun alt lokasyonları bulunmaktadır. Önce alt lokasyonları siliniz.');
-      return;
-    }
-    
     if (window.confirm('Bu lokasyonu silmek istediğinizden emin misiniz?')) {
       setLocations(locations.filter(location => location.id !== id));
     }
@@ -203,192 +167,237 @@ const Locations: React.FC = () => {
     ));
   };
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'building':
+        return <BuildingIcon />;
+      case 'floor':
+        return <FloorIcon />;
+      case 'area':
+        return <AreaIcon />;
+      case 'workstation':
+        return <WorkstationIcon />;
+      default:
+        return <LocationIcon />;
+    }
+  };
+
   const getTypeLabel = (type: string) => {
-    const typeLabels = {
+    const typeLabels: { [key: string]: string } = {
       building: 'Bina',
       floor: 'Kat',
       area: 'Alan',
       workstation: 'İş İstasyonu'
     };
-    return typeLabels[type as keyof typeof typeLabels] || type;
-  };
-
-  const getTypeIcon = (type: string) => {
-    const typeIcons = {
-      building: <BuildingIcon />,
-      floor: <FloorIcon />,
-      area: <AreaIcon />,
-      workstation: <WorkstationIcon />
-    };
-    return typeIcons[type as keyof typeof typeIcons] || <LocationIcon />;
+    return typeLabels[type] || type;
   };
 
   const getTypeColor = (type: string) => {
-    const typeColors = {
-      building: 'error',
-      floor: 'warning',
+    const typeColors: { [key: string]: string } = {
+      building: 'primary',
+      floor: 'secondary',
       area: 'info',
       workstation: 'success'
     };
-    return typeColors[type as keyof typeof typeColors] || 'default';
+    return typeColors[type] || 'default';
   };
-
-  const getParentLocationName = (parentId?: string) => {
-    if (!parentId) return '-';
-    const parent = locations.find(loc => loc.id === parentId);
-    return parent ? parent.name : '-';
-  };
-
-  const buildingCount = locations.filter(loc => loc.type === 'building').length;
-  const workstationCount = locations.filter(loc => loc.type === 'workstation').length;
-  const activeCount = locations.filter(loc => loc.isActive).length;
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700, 
+            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1 
+          }}
+        >
           Lokasyon Yönetimi
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpen()}
-        >
-          Yeni Lokasyon
-        </Button>
+        <Typography variant="h6" color="text.secondary">
+          Fabrika içi lokasyonları, çalışma alanlarını ve bölümleri tanımlayın ve yönetin
+        </Typography>
       </Box>
 
-      {/* İstatistik Kartları */}
-      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <LocationIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" color="primary">
-                {locations.length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Toplam Lokasyon
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <BuildingIcon sx={{ fontSize: 40, color: 'error.main', mb: 1 }} />
-              <Typography variant="h4" color="error.main">
-                {buildingCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Bina Sayısı
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <WorkstationIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
-              <Typography variant="h4" color="success.main">
-                {workstationCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                İş İstasyonu
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Chip 
-                label="AKTİF"
-                color="success"
-                sx={{ fontSize: 16, fontWeight: 'bold', mb: 1 }}
-              />
-              <Typography variant="h4" color="success.main">
-                {activeCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Aktif Lokasyon
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
-
-      <Box sx={{ display: 'flex', gap: 3 }}>
-        {/* Lokasyon Tablosu */}
-        <Card sx={{ flex: 1 }}>
+      {/* Stats Cards */}
+      <Box 
+        sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(4, 1fr)'
+          },
+          gap: 3,
+          mb: 4
+        }}
+      >
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+          color: 'white' 
+        }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Lokasyon Listesi
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Kod</TableCell>
-                    <TableCell>Ad</TableCell>
-                    <TableCell>Tip</TableCell>
-                    <TableCell>Üst Lokasyon</TableCell>
-                    <TableCell>Durum</TableCell>
-                    <TableCell>Açıklama</TableCell>
-                    <TableCell>İşlemler</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {locations.map((location) => (
-                    <TableRow key={location.id}>
-                      <TableCell>
-                        <Chip 
-                          label={location.code} 
-                          color="primary" 
-                          size="small"
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {getTypeIcon(location.type)}
-                          {location.name}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={getTypeLabel(location.type)} 
-                          color={getTypeColor(location.type) as any}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>{getParentLocationName(location.parentLocation)}</TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={location.isActive ? 'Aktif' : 'Pasif'} 
-                          color={location.isActive ? 'success' : 'error'}
-                          size="small"
-                          onClick={() => toggleLocationStatus(location.id)}
-                          sx={{ cursor: 'pointer' }}
-                        />
-                      </TableCell>
-                      <TableCell>{location.description || '-'}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleOpen(location)} size="small">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDelete(location.id)} size="small">
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {locations.length}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Toplam Lokasyon
+                </Typography>
+              </Box>
+              <LocationIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+          color: 'white' 
+        }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {locations.filter(l => l.isActive).length}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Aktif Lokasyon
+                </Typography>
+              </Box>
+              <Box sx={{ fontSize: 40, opacity: 0.8 }}>✅</Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+          color: 'white' 
+        }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {locations.filter(l => l.type === 'workstation').length}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  İş İstasyonu
+                </Typography>
+              </Box>
+              <WorkstationIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
+          color: 'white' 
+        }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {locations.filter(l => l.type === 'area').length}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Çalışma Alanı
+                </Typography>
+              </Box>
+              <AreaIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+            </Box>
           </CardContent>
         </Card>
       </Box>
+
+      {/* Controls */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Box sx={{ ml: 'auto' }}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpen()}
+                sx={{
+                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+                  },
+                }}
+              >
+                Yeni Lokasyon
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Locations Table */}
+      <Card>
+        <CardContent sx={{ p: 0 }}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>Lokasyon Kodu</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Lokasyon Adı</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Tür</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Durum</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Açıklama</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>İşlemler</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {locations.map((location) => (
+                  <TableRow key={location.id} hover>
+                    <TableCell>
+                      <Chip 
+                        label={location.code} 
+                        color="primary" 
+                        size="small"
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'medium' }}>{location.name}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        icon={getTypeIcon(location.type)}
+                        label={getTypeLabel(location.type)} 
+                        color={getTypeColor(location.type) as any}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={location.isActive ? 'Aktif' : 'Pasif'} 
+                        color={location.isActive ? 'success' : 'error'}
+                        size="small"
+                        onClick={() => toggleLocationStatus(location.id)}
+                        sx={{ cursor: 'pointer' }}
+                      />
+                    </TableCell>
+                    <TableCell>{location.description || '-'}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleOpen(location)} size="small">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete(location.id)} size="small">
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       {/* Lokasyon Ekleme/Düzenleme Dialog */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -403,20 +412,22 @@ const Locations: React.FC = () => {
                 label="Lokasyon Kodu"
                 value={formData.code || ''}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                placeholder="URT-001"
               />
               <TextField
                 fullWidth
                 label="Lokasyon Adı"
                 value={formData.name || ''}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Üretim Alanı 1"
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl fullWidth>
-                <InputLabel>Lokasyon Tipi</InputLabel>
+                <InputLabel>Lokasyon Türü</InputLabel>
                 <Select
-                  value={formData.type || ''}
-                  label="Lokasyon Tipi"
+                  value={formData.type || 'area'}
+                  label="Lokasyon Türü"
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                 >
                   <MenuItem value="building">Bina</MenuItem>
@@ -425,34 +436,7 @@ const Locations: React.FC = () => {
                   <MenuItem value="workstation">İş İstasyonu</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Üst Lokasyon</InputLabel>
-                <Select
-                  value={formData.parentLocation || ''}
-                  label="Üst Lokasyon"
-                  onChange={(e) => setFormData({ ...formData, parentLocation: e.target.value })}
-                >
-                  <MenuItem value="">- Yok -</MenuItem>
-                  {locations
-                    .filter(loc => loc.id !== editingLocation?.id) // Kendisini seçemesin
-                    .map(location => (
-                      <MenuItem key={location.id} value={location.id}>
-                        {location.name} ({getTypeLabel(location.type)})
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField
-                fullWidth
-                label="Açıklama"
-                multiline
-                rows={3}
-                value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 100 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -464,6 +448,15 @@ const Locations: React.FC = () => {
                 />
               </Box>
             </Box>
+            <TextField
+              fullWidth
+              label="Açıklama"
+              multiline
+              rows={3}
+              value={formData.description || ''}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Lokasyon hakkında kısa açıklama..."
+            />
           </Box>
         </DialogContent>
         <DialogActions>

@@ -143,19 +143,50 @@ const SecuritySettings: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700, 
+            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1 
+          }}
+        >
           Güvenlik Ayarları
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<SaveIcon />}
-          onClick={handleSave}
-          disabled={!isModified}
-        >
-          Kaydet
-        </Button>
+        <Typography variant="h6" color="text.secondary">
+          Sistem güvenlik politikalarını ve erişim kontrollerini yönetin
+        </Typography>
       </Box>
+
+      {/* Action Buttons */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Box sx={{ ml: 'auto' }}>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+                disabled={!isModified}
+                sx={{
+                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+                  },
+                }}
+              >
+                Kaydet
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
 
       {saveSuccess && (
         <Alert severity="success" sx={{ mb: 3 }}>

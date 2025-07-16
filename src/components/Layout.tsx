@@ -26,6 +26,7 @@ import {
   Inventory as InventoryIcon,
   Build as EquipmentIcon,
   Assessment as ReportsIcon,
+  People as PeopleIcon,
   AccountCircle,
   Settings,
   Logout,
@@ -70,6 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Kalite Yönetimi', icon: <QualityIcon />, path: '/quality' },
     { text: 'Stok Yönetimi', icon: <InventoryIcon />, path: '/inventory' },
     { text: 'Ekipman Yönetimi', icon: <EquipmentIcon />, path: '/equipment' },
+    { text: 'Müşteri & Tedarikçi', icon: <PeopleIcon />, path: '/customers' },
     { text: 'Raporlar', icon: <ReportsIcon />, path: '/reports' },
     { text: 'Fabrika Ayarları', icon: <Settings />, path: '/factory-settings' },
   ];

@@ -163,152 +163,94 @@ const Shifts: React.FC = () => {
       diffMs += 24 * 60 * 60 * 1000;
     }
     
-    const diffHours = diffMs / (1000 * 60 * 60);
-    const workHours = diffHours - (breakDuration / 60);
-    return workHours.toFixed(1);
+    const totalMinutes = diffMs / (1000 * 60);
+    const workMinutes = totalMinutes - breakDuration;
+    return (workMinutes / 60).toFixed(1);
   };
 
   const activeShifts = shifts.filter(shift => shift.isActive).length;
-  const avgBreakTime = Math.round(shifts.reduce((acc, shift) => acc + shift.breakDuration, 0) / shifts.length);
+  const totalBreakTime = shifts.reduce((total, shift) => total + shift.breakDuration, 0);
+  const avgBreakTime = shifts.length > 0 ? (totalBreakTime / shifts.length).toFixed(0) : '0';
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography 
-          variant="h3" 
-          component="h1" 
-          sx={{ 
-            fontWeight: 700, 
-            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 1 
-          }}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Vardiya Ayarları
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpen()}
         >
-          Vardiya Yönetimi
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Çalışma vardiyalarını tanımlayın, planlamasını yapın ve zaman çizelgelerini yönetin
-        </Typography>
+          Yeni Vardiya
+        </Button>
       </Box>
 
-      {/* Stats Cards */}
-      <Box 
-        sx={{ 
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)'
-          },
-          gap: 3,
-          mb: 4
-        }}
-      >
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-          color: 'white' 
-        }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {shifts.length}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Toplam Vardiya
-                </Typography>
-              </Box>
-              <ScheduleIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-          color: 'white' 
-        }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {activeShifts}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Aktif Vardiya
-                </Typography>
-              </Box>
-              <GroupIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-          color: 'white' 
-        }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {avgBreakTime}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Ortalama Mola (dk)
-                </Typography>
-              </Box>
-              <TimeIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-            </Box>
-          </CardContent>
-        </Card>
+      {/* İstatistik Kartları */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+        <Box sx={{ flex: 1, minWidth: 200 }}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <ScheduleIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+              <Typography variant="h4" color="primary">
+                {shifts.length}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Toplam Vardiya
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 200 }}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <GroupIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
+              <Typography variant="h4" color="success.main">
+                {activeShifts}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Aktif Vardiya
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 200 }}>
+          <Card>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <TimeIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
+              <Typography variant="h4" color="warning.main">
+                {avgBreakTime}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Ortalama Mola (dk)
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
 
-      {/* Controls */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Box sx={{ ml: 'auto' }}>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => handleOpen()}
-                sx={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
-                  },
-                }}
-              >
-                Yeni Vardiya
-              </Button>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Shifts Table */}
+      {/* Vardiya Tablosu */}
       <Card>
-        <CardContent sx={{ p: 0 }}>
+        <CardContent>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Vardiya Kodu</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Vardiya Adı</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Başlangıç</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Bitiş</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Çalışma Saati</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Mola (dk)</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Durum</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Açıklama</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>İşlemler</TableCell>
+                <TableRow>
+                  <TableCell>Vardiya Kodu</TableCell>
+                  <TableCell>Vardiya Adı</TableCell>
+                  <TableCell>Başlangıç</TableCell>
+                  <TableCell>Bitiş</TableCell>
+                  <TableCell>Çalışma Saati</TableCell>
+                  <TableCell>Mola (dk)</TableCell>
+                  <TableCell>Durum</TableCell>
+                  <TableCell>Açıklama</TableCell>
+                  <TableCell>İşlemler</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {shifts.map((shift) => (
-                  <TableRow key={shift.id} hover>
+                  <TableRow key={shift.id}>
                     <TableCell>
                       <Chip 
                         label={shift.code} 
@@ -317,7 +259,7 @@ const Shifts: React.FC = () => {
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 'medium' }}>{shift.name}</TableCell>
+                    <TableCell>{shift.name}</TableCell>
                     <TableCell>{shift.startTime}</TableCell>
                     <TableCell>{shift.endTime}</TableCell>
                     <TableCell>
