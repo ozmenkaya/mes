@@ -76,7 +76,7 @@ const GeneralSettingsPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography 
@@ -88,26 +88,45 @@ const GeneralSettingsPage: React.FC = () => {
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            mb: 1 
+            mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' }
           }}
         >
           Genel Ayarlar
         </Typography>
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           Sistem genelinde kullanılacak temel ayarları yapılandırın
         </Typography>
       </Box>
 
       {/* Action Buttons */}
       <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            alignItems: 'center', 
+            flexWrap: 'wrap',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: { xs: 'stretch', sm: 'flex-end' }
+          }}>
+            <Box sx={{ 
+              ml: { xs: 0, sm: 'auto' }, 
+              display: 'flex', 
+              gap: 1,
+              width: { xs: '100%', sm: 'auto' },
+              flexDirection: { xs: 'column', sm: 'row' }
+            }}>
               <Button
                 variant="outlined"
                 startIcon={<RestoreIcon />}
                 onClick={handleReset}
                 disabled={!isModified}
+                fullWidth={true}
+                sx={{ 
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: { sm: 120 }
+                }}
               >
                 Sıfırla
               </Button>
@@ -116,7 +135,10 @@ const GeneralSettingsPage: React.FC = () => {
                 startIcon={<SaveIcon />}
                 onClick={handleSave}
                 disabled={!isModified}
+                fullWidth={true}
                 sx={{
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: { sm: 120 },
                   background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                   '&:hover': {
                     background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
@@ -165,8 +187,13 @@ const GeneralSettingsPage: React.FC = () => {
                 Lokalizasyon Ayarları
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+              gap: 2, 
+              mb: 2 
+            }}>
+              <FormControl>
                 <InputLabel>Dil</InputLabel>
                 <Select
                   value={settings.language}
@@ -177,7 +204,7 @@ const GeneralSettingsPage: React.FC = () => {
                   <MenuItem value="en">English</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl sx={{ flex: 1 }}>
+              <FormControl>
                 <InputLabel>Saat Dilimi</InputLabel>
                 <Select
                   value={settings.timezone}
@@ -191,8 +218,12 @@ const GeneralSettingsPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+              gap: 2 
+            }}>
+              <FormControl>
                 <InputLabel>Tarih Formatı</InputLabel>
                 <Select
                   value={settings.dateFormat}
@@ -204,7 +235,7 @@ const GeneralSettingsPage: React.FC = () => {
                   <MenuItem value="YYYY-MM-DD">YYYY-MM-DD</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl sx={{ flex: 1 }}>
+              <FormControl>
                 <InputLabel>Para Birimi</InputLabel>
                 <Select
                   value={settings.currency}
@@ -223,7 +254,7 @@ const GeneralSettingsPage: React.FC = () => {
 
         {/* Çalışma Zamanları */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <ScheduleIcon color="primary" />
               <Typography variant="h6">
@@ -261,7 +292,7 @@ const GeneralSettingsPage: React.FC = () => {
 
         {/* Sistem Ayarları */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <SecurityIcon color="primary" />
               <Typography variant="h6">
@@ -312,7 +343,7 @@ const GeneralSettingsPage: React.FC = () => {
 
         {/* Sistem Bilgileri */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="h6" gutterBottom>
               Sistem Bilgileri
             </Typography>

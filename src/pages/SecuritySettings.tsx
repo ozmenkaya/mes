@@ -142,7 +142,7 @@ const SecuritySettings: React.FC = () => {
   const successfulLogins = recentLogins.filter(attempt => attempt.success);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography 
@@ -154,27 +154,40 @@ const SecuritySettings: React.FC = () => {
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            mb: 1 
+            mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' }
           }}
         >
           Güvenlik Ayarları
         </Typography>
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           Sistem güvenlik politikalarını ve erişim kontrollerini yönetin
         </Typography>
       </Box>
 
       {/* Action Buttons */}
       <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Box sx={{ ml: 'auto' }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            alignItems: 'center', 
+            flexWrap: 'wrap',
+            justifyContent: { xs: 'stretch', sm: 'flex-end' }
+          }}>
+            <Box sx={{ 
+              ml: { xs: 0, sm: 'auto' }, 
+              width: { xs: '100%', sm: 'auto' }
+            }}>
               <Button
                 variant="contained"
                 startIcon={<SaveIcon />}
                 onClick={handleSave}
                 disabled={!isModified}
+                fullWidth={true}
                 sx={{
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: { sm: 120 },
                   background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                   '&:hover': {
                     background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
@@ -211,7 +224,7 @@ const SecuritySettings: React.FC = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {/* Şifre Politikaları */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <LockIcon color="primary" />
               <Typography variant="h6">
@@ -291,7 +304,7 @@ const SecuritySettings: React.FC = () => {
 
         {/* Oturum Güvenliği */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <KeyIcon color="primary" />
               <Typography variant="h6">
@@ -375,7 +388,7 @@ const SecuritySettings: React.FC = () => {
 
         {/* Denetim ve Kayıtlar */}
         <Card>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <HistoryIcon color="primary" />
               <Typography variant="h6">
@@ -396,8 +409,15 @@ const SecuritySettings: React.FC = () => {
 
         {/* Son Giriş Denemeleri */}
         <Card>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justify: 'space-between', mb: 2 }}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              mb: 2,
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 1, sm: 0 }
+            }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <VisibilityIcon color="primary" />
                 <Typography variant="h6">

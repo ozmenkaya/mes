@@ -198,15 +198,40 @@ const FactorySettings: React.FC = () => {
   );
 
   return (
-    <Box>
-      <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold' }}>
-        Fabrika Ayarları
-      </Typography>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 700, 
+            background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' }
+          }}
+        >
+          Fabrika Ayarları
+        </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          Sistem yapılandırmasını ve fabrika ayarlarını yönetin
+        </Typography>
+      </Box>
 
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        gap: 3, 
+        flexDirection: { xs: 'column', lg: 'row' }
+      }}>
         {/* Ayarlar Menüsü */}
-        <Box sx={{ minWidth: 300, flex: 1 }}>
-          <Paper sx={{ p: 2 }}>
+        <Box sx={{ 
+          minWidth: { lg: 300 }, 
+          flex: { lg: 1 },
+          order: { xs: 2, lg: 1 }
+        }}>
+          <Paper sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
               Ayar Kategorileri
             </Typography>
@@ -254,9 +279,13 @@ const FactorySettings: React.FC = () => {
         </Box>
 
         {/* Seçili Ayar İçeriği */}
-        <Box sx={{ minWidth: 400, flex: 2 }}>
+        <Box sx={{ 
+          minWidth: { lg: 400 }, 
+          flex: { lg: 2 },
+          order: { xs: 1, lg: 2 }
+        }}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <Typography variant="h6" sx={{ mb: 3, color: 'primary.main' }}>
                 {settingsMenuItems.find(item => item.id === selectedSetting)?.text}
               </Typography>
