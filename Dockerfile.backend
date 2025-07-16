@@ -4,12 +4,18 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
+# Install PostgreSQL client libraries
+RUN apk add --no-cache postgresql-client
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S mesuser -u 1001
 
+# Install pg module for PostgreSQL
+RUN npm install pg
+
 # Copy backend file
-COPY simple-backend.cjs ./
+COPY simple-backend-postgres.cjs ./simple-backend.cjs
 
 # Change ownership
 RUN chown -R mesuser:nodejs /app

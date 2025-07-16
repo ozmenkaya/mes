@@ -15,7 +15,8 @@ Modern, responsive ve kullanıcı dostu üretim yönetim sistemi.
 ### Teknolojiler
 - **Frontend**: React 18 + TypeScript + Vite
 - **UI Framework**: Material-UI (MUI) v5
-- **Backend**: Node.js (Express alternative)
+- **Backend**: Node.js (Express alternative) 
+- **Database**: PostgreSQL 15 with persistent volumes
 - **Deployment**: Docker + Docker Compose
 - **State Management**: React Context API ve hooks
 - **Routing**: React Router v6
@@ -23,6 +24,14 @@ Modern, responsive ve kullanıcı dostu üretim yönetim sistemi.
 - **Data Grids**: MUI X Data Grid (gelecekte eklenecek)
 - **HTTP Client**: Axios
 - **Date/Time**: Day.js
+
+## 🗄️ Database & Data Persistence
+
+- **Database**: PostgreSQL 15 with persistent Docker volumes
+- **Backup System**: Automated daily backups with 7-day retention
+- **Data Safety**: Zero data loss during deployments and updates
+- **Development**: Continuous data persistence during development cycles
+- **Production Ready**: ACID compliance and reliability
 
 ## 🚀 Kurulum
 

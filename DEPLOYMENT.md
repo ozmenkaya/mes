@@ -2,7 +2,22 @@
 
 Bu dosya MES uygulamanızı DigitalOcean'da deploy etmek için adım adım talimatları içerir.
 
-## 📋 Ön Hazırlık
+## �️ Database & Data Persistence
+
+### PostgreSQL Database
+- **Database**: PostgreSQL 15 with persistent volumes
+- **Data Location**: Docker volume `mes_db_data`
+- **Connection**: Automatic via Docker networking
+- **Backup**: Automated backup system included
+
+### Data Persistence Features
+- ✅ **Persistent Storage**: All data saved in Docker volumes
+- ✅ **Auto Backup**: Daily automated backups with retention
+- ✅ **Development Safety**: No data loss during updates
+- ✅ **Production Ready**: Full ACID compliance with PostgreSQL
+- ✅ **Zero Downtime**: Database survives container restarts
+
+## �📋 Ön Hazırlık
 
 ### 1. DigitalOcean Droplet Oluşturun
 - **OS**: Ubuntu 20.04 LTS

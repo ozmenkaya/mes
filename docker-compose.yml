@@ -1,4 +1,25 @@
 services:
+  # PostgreSQL Database
+  mes-database:
+    image: postgres:15-alpine
+    container_name: mes-database
+    environment:
+      POSTGRES_DB: mes_production
+      POSTGRES_USER: mes_user
+      POSTGRES_PASSWORD: mes_secure_password_2024
+    volumes:
+      - mes_db_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mes_user -d mes_production"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # Backend API Service
   mes-backend:
     build:
@@ -10,6 +31,14 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
+      - DB_HOST=mes-database
+      - DB_PORT=5432
+      - DB_NAME=mes_production
+      - DB_USER=mes_user
+      - DB_PASSWORD=mes_secure_password_2024
+    depends_on:
+      mes-database:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "const http = require('http'); const options = { host: 'localhost', port: 3001, path: '/api/working-hours', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"]
@@ -28,6 +57,7 @@ services:
       - "80:80"
     depends_on:
       - mes-backend
+      - mes-database
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80", "||", "exit", "1"]
@@ -35,6 +65,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+# Volumes for persistent data
+volumes:
+  mes_db_data:
+    driver: local
 
   # Nginx Reverse Proxy (Optional - for production)
   nginx-proxy:
