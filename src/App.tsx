@@ -15,6 +15,7 @@ import SecuritySettings from './pages/SecuritySettings';
 import Machines from './pages/Machines';
 import WorkingHours from './pages/WorkingHours';
 import Customers from './pages/Customers';
+import FormGenerator from './pages/FormGenerator';
 
 // Dashboard component inline
 const Dashboard = () => {
@@ -613,6 +614,49 @@ const FactorySettings = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Form Generator */}
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%)',
+        border: '1px solid rgba(168, 85, 247, 0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 24px rgba(168, 85, 247, 0.15)',
+        }
+      }}
+      onClick={() => navigate('/factory-settings/form-generator')}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{
+              p: 1.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+              color: 'white',
+              mr: 2
+            }}>
+              <Typography sx={{ fontSize: 24 }}>📝</Typography>
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Form Generator
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Müşteri ve tedarikçi kayıt formları oluşturun ve yönetin.
+          </Typography>
+          <Chip 
+            label="Yeni Özellik" 
+            size="small" 
+            sx={{ 
+              backgroundColor: 'rgba(168, 85, 247, 0.1)',
+              color: '#a855f7',
+              fontWeight: 600 
+            }}
+          />
+        </CardContent>
+      </Card>
     </Box>
   </Box>
   );
@@ -647,6 +691,7 @@ const AppContent = () => {
           <Route path="/factory-settings/security" element={<SecuritySettings />} />
           <Route path="/factory-settings/machines" element={<Machines />} />
           <Route path="/factory-settings/working-hours" element={<WorkingHours />} />
+          <Route path="/factory-settings/form-generator" element={<FormGenerator />} />
         </Routes>
       </Layout>
     </Router>
