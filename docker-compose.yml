@@ -47,7 +47,7 @@ services:
       retries: 3
       start_period: 40s
 
-  # Frontend Service
+  # Frontend Service with SSL
   mes-frontend:
     build:
       context: .
@@ -55,12 +55,17 @@ services:
     container_name: mes-frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+      - /etc/ssl/certs/mes-selfsigned.crt:/etc/ssl/certs/mes-selfsigned.crt:ro
+      - /etc/ssl/private/mes-selfsigned.key:/etc/ssl/private/mes-selfsigned.key:ro
     depends_on:
       - mes-backend
       - mes-database
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80", "||", "exit", "1"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost:443", "--no-check-certificate", "||", "exit", "1"]
       interval: 30s
       timeout: 10s
       retries: 3
