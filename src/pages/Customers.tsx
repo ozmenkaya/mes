@@ -27,6 +27,7 @@ import {
   Tab,
   Alert,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -36,6 +37,8 @@ import {
   Sync as SyncIcon,
   Download as DownloadIcon,
   Upload as UploadIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 
 interface Customer {
@@ -74,6 +77,8 @@ const Customers: React.FC = () => {
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
 
   // Mock data - gerçek uygulamada API'den gelecek
   const mockCustomers: Customer[] = [
@@ -232,11 +237,33 @@ const Customers: React.FC = () => {
     }
   };
 
+  // Benzersiz kategorileri al
+  const uniqueCategories = Array.from(new Set(customers.map(c => c.category).filter(Boolean)));
+
+  // Arama temizleme fonksiyonu
+  const clearSearch = () => {
+    setSearchTerm('');
+    setSearchCategory('');
+  };
+
   const filteredCustomers = customers.filter(customer => {
-    if (tabValue === 0) return true; // Tümü
-    if (tabValue === 1) return customer.type === 'customer' || customer.type === 'both';
-    if (tabValue === 2) return customer.type === 'supplier' || customer.type === 'both';
-    return true;
+    // Tab filtreleme
+    let tabFilter = true;
+    if (tabValue === 1) tabFilter = customer.type === 'customer' || customer.type === 'both';
+    if (tabValue === 2) tabFilter = customer.type === 'supplier' || customer.type === 'both';
+    
+    // Arama filtreleme
+    const searchFilter = searchTerm === '' || 
+      customer.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (customer.category && customer.category.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Kategori filtreleme
+    const categoryFilter = searchCategory === '' || customer.category === searchCategory;
+    
+    return tabFilter && searchFilter && categoryFilter;
   });
 
   return (
@@ -314,6 +341,73 @@ const Customers: React.FC = () => {
 
       <Card>
         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          {/* Arama ve Filtreleme Bölümü */}
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            mb: 3, 
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'flex-end' }
+          }}>
+            <TextField
+              label="Firma, Kişi, E-posta veya Telefon ile Ara"
+              variant="outlined"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ flex: 1, minWidth: { xs: '100%', md: 300 } }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm && (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setSearchTerm('')}>
+                      <ClearIcon />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+            <FormControl size="small" sx={{ minWidth: { xs: '100%', md: 150 } }}>
+              <InputLabel>Kategori</InputLabel>
+              <Select
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value)}
+                label="Kategori"
+              >
+                <MenuItem value="">Tümü</MenuItem>
+                {uniqueCategories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {(searchTerm || searchCategory) && (
+              <Button
+                variant="outlined"
+                onClick={clearSearch}
+                startIcon={<ClearIcon />}
+                size="small"
+                sx={{ minWidth: { xs: '100%', md: 'auto' } }}
+              >
+                Temizle
+              </Button>
+            )}
+          </Box>
+
+          {/* Sonuç Sayısı */}
+          {(searchTerm || searchCategory) && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {filteredCustomers.length} sonuç bulundu
+              {searchTerm && ` "${searchTerm}" için`}
+              {searchCategory && ` ${searchCategory} kategorisinde`}
+            </Typography>
+          )}
+
           <Tabs 
             value={tabValue} 
             onChange={handleTabChange} 
