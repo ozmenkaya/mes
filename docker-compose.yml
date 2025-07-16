@@ -66,11 +66,6 @@ services:
       retries: 3
       start_period: 40s
 
-# Volumes for persistent data
-volumes:
-  mes_db_data:
-    driver: local
-
   # Nginx Reverse Proxy (Optional - for production)
   nginx-proxy:
     image: nginx:alpine
@@ -85,3 +80,8 @@ volumes:
     restart: unless-stopped
     profiles:
       - production
+
+# Volumes for persistent data
+volumes:
+  mes_db_data:
+    driver: local
