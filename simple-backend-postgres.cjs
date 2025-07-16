@@ -201,14 +201,14 @@ async function handleCustomers(req, res, method, pathname) {
       const query = `
         INSERT INTO customers (
           code, name, type, contact_person, email, phone, address,
-          tax_number, payment_terms, credit_limit, status, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          tax_number, payment_terms, credit_limit, status, notes, category
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *
       `;
       const values = [
         data.code, data.name, data.type, data.contactPerson, data.email,
         data.phone, data.address, data.taxNumber, data.paymentTerms,
-        data.creditLimit, data.status || 'active', data.notes
+        data.creditLimit, data.status || 'active', data.notes, data.category
       ];
       
       const result = await pool.query(query, values);
@@ -220,14 +220,14 @@ async function handleCustomers(req, res, method, pathname) {
         UPDATE customers SET
           code = $1, name = $2, type = $3, contact_person = $4, email = $5,
           phone = $6, address = $7, tax_number = $8, payment_terms = $9,
-          credit_limit = $10, status = $11, notes = $12, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $13
+          credit_limit = $10, status = $11, notes = $12, category = $13, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $14
         RETURNING *
       `;
       const values = [
         data.code, data.name, data.type, data.contactPerson, data.email,
         data.phone, data.address, data.taxNumber, data.paymentTerms,
-        data.creditLimit, data.status, data.notes, id
+        data.creditLimit, data.status, data.notes, data.category, id
       ];
       
       const result = await pool.query(query, values);

@@ -202,6 +202,7 @@ const Customers: React.FC = () => {
         taxNumber: formData.taxNumber,
         paymentTerms: formData.paymentTerms,
         creditLimit: formData.creditLimit,
+        category: formData.category,
         status: formData.status || 'active',
         notes: formData.notes
       };
