@@ -1,8 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
-  // Production'da window.location.origin kullan, development'te localhost:3001
+  // Production'da relative path kullan (nginx proxy ile), development'te localhost:3001
   BASE_URL: import.meta.env.MODE === 'production' 
-    ? `${window.location.protocol}//${window.location.hostname}:3001`
+    ? '' // Relative path, nginx proxy ile aynı domain'den /api/ çağrılacak
     : 'http://localhost:3001',
   
   // API endpoints

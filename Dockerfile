@@ -22,8 +22,8 @@ FROM nginx:alpine
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy nginx configuration with API proxy
+COPY nginx-with-proxy.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80
