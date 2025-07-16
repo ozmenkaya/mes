@@ -1,0 +1,7 @@
+# Webhook Test
+
+Bu dosya webhook sisteminin test edilmesi için oluşturulmuştur.
+
+Test zamanı: 2025-07-16 22:35
+
+Webhook durumu: Aktif ve çalışıyor ✅
