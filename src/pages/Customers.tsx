@@ -40,6 +40,7 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
+import { apiRequest, API_CONFIG } from '../config/api';
 
 interface Customer {
   id: string;
@@ -122,10 +123,7 @@ const Customers: React.FC = () => {
     setLoading(true);
     try {
       // Gerçek API'den veri çek
-      const response = await fetch('http://localhost:3001/api/customers');
-      if (!response.ok) {
-        throw new Error('Veri çekme başarısız');
-      }
+      const response = await apiRequest(API_CONFIG.ENDPOINTS.CUSTOMERS);
       const data = await response.json();
       setCustomers(data);
     } catch (error) {
@@ -164,16 +162,9 @@ const Customers: React.FC = () => {
         setLoading(true);
         
         // Backend'e DELETE request gönder
-        const response = await fetch(`http://localhost:3001/api/customers/${id}`, {
+        await apiRequest(`${API_CONFIG.ENDPOINTS.CUSTOMERS}/${id}`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
         });
-
-        if (!response.ok) {
-          throw new Error('Silme işlemi başarısız');
-        }
 
         // Local state'i güncelle
         setCustomers(customers.filter(c => c.id !== id));
@@ -217,17 +208,10 @@ const Customers: React.FC = () => {
 
       if (editingCustomer) {
         // Update existing customer
-        const response = await fetch(`http://localhost:3001/api/customers/${editingCustomer.id}`, {
+        const response = await apiRequest(`${API_CONFIG.ENDPOINTS.CUSTOMERS}/${editingCustomer.id}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(customerData),
         });
-
-        if (!response.ok) {
-          throw new Error('Güncelleme başarısız');
-        }
 
         const updatedCustomer = await response.json();
         setCustomers(customers.map(c => 
@@ -236,17 +220,10 @@ const Customers: React.FC = () => {
         setSuccess('Firma başarıyla güncellendi');
       } else {
         // Create new customer
-        const response = await fetch('http://localhost:3001/api/customers', {
+        const response = await apiRequest(API_CONFIG.ENDPOINTS.CUSTOMERS, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(customerData),
         });
-
-        if (!response.ok) {
-          throw new Error('Ekleme başarısız');
-        }
 
         const newCustomer = await response.json();
         setCustomers([...customers, newCustomer]);
