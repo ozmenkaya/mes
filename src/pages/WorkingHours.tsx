@@ -39,7 +39,7 @@ import {
   Schedule as ScheduleIcon,
   EventBusy as HolidayIcon,
 } from '@mui/icons-material';
-import type { WorkingHours, Holiday, MaintenanceWindow, WorkShift } from '../types';
+import type { WorkingHours as WorkingHoursType, Holiday, MaintenanceWindow, WorkShift } from '../types';
 import { workingHoursApi } from '../services/api';
 
 interface TabPanelProps {
@@ -63,7 +63,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const WorkingHours: React.FC = () => {
-  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
+  const [workingHours, setWorkingHours] = useState<WorkingHoursType | null>(null);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [maintenanceWindows, setMaintenanceWindows] = useState<MaintenanceWindow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,7 +167,7 @@ const WorkingHours: React.FC = () => {
     if (!workingHours) return;
     
     const daySchedule = workingHours.weeklySchedule[day as keyof typeof workingHours.weeklySchedule];
-    const updatedShifts = daySchedule.shifts.filter((_, index) => index !== shiftIndex);
+    const updatedShifts = daySchedule.shifts.filter((_: any, index: number) => index !== shiftIndex);
     
     handleDayScheduleChange(day, 'shifts', updatedShifts);
   };
@@ -446,7 +446,7 @@ const WorkingHours: React.FC = () => {
 
                   {daySchedule.isWorkingDay && (
                     <Box>
-                      {daySchedule.shifts.map((shift, index) => (
+                      {daySchedule.shifts.map((shift: any, index: number) => (
                         <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
                           <TextField
                             label="Vardiya Adı"
