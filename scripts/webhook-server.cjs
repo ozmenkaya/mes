@@ -9,7 +9,7 @@ const { execSync } = require('child_process');
 
 const PORT = 9000;
 const WEBHOOK_SECRET = 'mes-webhook-secret-2024';
-const DEPLOY_SCRIPT = '/root/mes/scripts/auto-deploy.sh';
+const DEPLOY_SCRIPT = './scripts/auto-deploy.sh';
 
 // Webhook signature verification
 function verifySignature(payload, signature) {
