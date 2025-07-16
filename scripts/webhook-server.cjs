@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const { execSync } = require('child_process');
 
 const PORT = 9000;
-const WEBHOOK_SECRET = 'mes_deploy_secret_2024';
+const WEBHOOK_SECRET = 'mes-webhook-secret-2024';
 const DEPLOY_SCRIPT = '/root/mes/scripts/auto-deploy.sh';
 
 // Webhook signature verification
