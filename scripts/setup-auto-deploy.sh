@@ -32,7 +32,7 @@ print_info "🔧 MES Auto-Deploy sistemi kuruluyor..."
 
 # Make scripts executable
 chmod +x /root/mes/scripts/auto-deploy.sh
-chmod +x /root/mes/scripts/webhook-server.js
+chmod +x /root/mes/scripts/webhook-server.cjs
 
 # Copy systemd service file
 print_info "📦 Systemd service kuruluyor..."
