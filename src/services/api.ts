@@ -65,6 +65,21 @@ export const departmentApi = {
     const response = await api.get('/departments');
     return response.data;
   },
+  
+  create: async (department: any) => {
+    const response = await api.post('/departments', department);
+    return response.data;
+  },
+  
+  update: async (id: string, department: any) => {
+    const response = await api.put(`/departments/${id}`, department);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/departments/${id}`);
+    return response.data;
+  },
 };
 
 // Personnel API calls
@@ -73,12 +88,111 @@ export const personnelApi = {
     const response = await api.get('/personnel');
     return response.data;
   },
+  
+  create: async (personnel: any) => {
+    const response = await api.post('/personnel', personnel);
+    return response.data;
+  },
+  
+  update: async (id: string, personnel: any) => {
+    const response = await api.put(`/personnel/${id}`, personnel);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/personnel/${id}`);
+    return response.data;
+  },
 };
 
 // Location API calls
 export const locationApi = {
   getAll: async () => {
     const response = await api.get('/locations');
+    return response.data;
+  },
+  
+  create: async (location: any) => {
+    const response = await api.post('/locations', location);
+    return response.data;
+  },
+  
+  update: async (id: string, location: any) => {
+    const response = await api.put(`/locations/${id}`, location);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/locations/${id}`);
+    return response.data;
+  },
+};
+
+// Work Orders API calls
+export const workOrderApi = {
+  getAll: async () => {
+    const response = await api.get('/work-orders');
+    return response.data;
+  },
+  
+  create: async (workOrder: any) => {
+    const response = await api.post('/work-orders', workOrder);
+    return response.data;
+  },
+  
+  update: async (id: string, workOrder: any) => {
+    const response = await api.put(`/work-orders/${id}`, workOrder);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/work-orders/${id}`);
+    return response.data;
+  },
+};
+
+// Inventory API calls
+export const inventoryApi = {
+  getAll: async () => {
+    const response = await api.get('/inventory');
+    return response.data;
+  },
+  
+  create: async (item: any) => {
+    const response = await api.post('/inventory', item);
+    return response.data;
+  },
+  
+  update: async (id: string, item: any) => {
+    const response = await api.put(`/inventory/${id}`, item);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/inventory/${id}`);
+    return response.data;
+  },
+};
+
+// Shifts API calls
+export const shiftsApi = {
+  getAll: async () => {
+    const response = await api.get('/shifts');
+    return response.data;
+  },
+  
+  create: async (shift: any) => {
+    const response = await api.post('/shifts', shift);
+    return response.data;
+  },
+  
+  update: async (id: string, shift: any) => {
+    const response = await api.put(`/shifts/${id}`, shift);
+    return response.data;
+  },
+  
+  delete: async (id: string) => {
+    const response = await api.delete(`/shifts/${id}`);
     return response.data;
   },
 };
