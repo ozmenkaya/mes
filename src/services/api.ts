@@ -1,7 +1,10 @@
 import axios from 'axios';
 import type { Machine, WorkingHours, Holiday, MaintenanceWindow } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// Production'da relative path kullan, development'te localhost
+const API_BASE_URL = import.meta.env.MODE === 'production' 
+  ? '/api'  // Production: nginx proxy ile aynı domain'den
+  : 'http://localhost:3001/api';  // Development: backend sunucusu
 
 // Create axios instance
 const api = axios.create({

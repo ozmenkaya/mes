@@ -12,6 +12,7 @@ import personnelRoutes from './routes/personnel';
 import locationRoutes from './routes/locations';
 import authRoutes from './routes/auth';
 import workingHoursRoutes from './routes/workingHours';
+import workOrderRoutes from './routes/workOrders';
 
 // Load environment variables
 dotenv.config();
@@ -37,6 +38,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/personnel', personnelRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/working-hours', workingHoursRoutes);
+app.use('/api/work-orders', workOrderRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -52,7 +54,8 @@ app.get('/', (req, res) => {
         departments: '/api/departments',
         personnel: '/api/personnel',
         locations: '/api/locations',
-        workingHours: '/api/working-hours'
+        workingHours: '/api/working-hours',
+        workOrders: '/api/work-orders'
       }
     },
     timestamp: new Date().toISOString()
